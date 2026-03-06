@@ -1,0 +1,2342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="MyHub"/>
+  <meta name="theme-color" content="#0a0a12"/>
+  <title>MyHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0a0a12;--surface:#13131f;--surface2:#1c1c2e;--border:rgba(255,255,255,0.07);--accent:#c8a96e;--accent2:#7c6fff;--green:#6fff9e;--red:#ff6f6f;--text:#f0ede8;--muted:rgba(240,237,232,0.45);--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;user-select:none}
+    #app{display:flex;flex-direction:column;height:100dvh;width:100%;position:relative}
+    .screen{display:none;flex:1;overflow-y:auto;padding:calc(var(--safe-top)+16px) 18px calc(var(--nav-h, 80px) + var(--safe-bottom) + 120px);-webkit-overflow-scrolling:touch;animation:fadeUp .3s ease;max-width:600px;margin:0 auto;width:100%;box-sizing:border-box}
+    .screen.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    nav{position:fixed;bottom:0;left:0;right:0;width:100%;background:rgba(19,19,31,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding-bottom:calc(var(--safe-bottom)+4px);padding-top:8px;z-index:100}
+    .nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;padding:4px 8px;cursor:pointer;transition:color .2s;letter-spacing:.03em}
+    .nav-btn svg{width:22px;height:22px;stroke-width:1.6}
+    .nav-btn.active{color:var(--accent)}
+    .nav-btn.active svg{filter:drop-shadow(0 0 6px rgba(200,169,110,.5))}
+    .page-title{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:4px}
+    .page-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+    .card-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    /* HOME */
+    .home-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+    .greeting{font-family:'DM Serif Display',serif;font-size:30px;line-height:1.1}
+    .greeting em{color:var(--accent);font-style:italic}
+    .date-badge{text-align:right;font-size:11px;color:var(--muted);line-height:1.5}
+    .widget-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    .widget{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
+    .widget:active{transform:scale(.96)}
+    .widget.wide{grid-column:1/-1}
+    .widget-icon{font-size:26px;margin-bottom:10px}
+    .widget-name{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+    .widget-value{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-top:2px;line-height:1.1}
+    .widget-sub{font-size:11px;color:var(--muted);margin-top:3px}
+    .widget.weather-w{background:linear-gradient(135deg,#1a1a2e,#16213e)}
+    .widget.cal-w{background:linear-gradient(135deg,#1e1222,#2a1530)}
+    .widget.recipe-w{background:linear-gradient(135deg,#0d1f1a,#12261f)}
+    .widget.shop-w{background:linear-gradient(135deg,#1a1f0d,#1f2612)}
+    .glow-dot{position:absolute;width:80px;height:80px;border-radius:50%;opacity:.15;top:-20px;right:-20px;filter:blur(20px)}
+    .weather-w .glow-dot{background:#7c9fff}.cal-w .glow-dot{background:#c87cff}
+    .recipe-w .glow-dot{background:#6fff9e}.shop-w .glow-dot{background:#c8ff6f}
+    .info-banner{border-radius:18px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;font-size:12px;line-height:1.6;color:var(--muted)}
+    .info-banner.blue{background:rgba(124,111,255,.12);border:1px solid rgba(124,111,255,.2)}
+    .info-banner.gold{background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.2)}
+    .info-banner strong{color:var(--text);font-size:13px;display:block;margin-bottom:2px}
+    .info-banner-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+
+    /* TRAVEL */
+    .travel-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+    .travel-card .glow-dot{background:#7cefff}
+    .travel-route-btn{width:100%;padding:16px;border:none;border-radius:16px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;transition:transform .15s}
+    .travel-route-btn:active{transform:scale(.97)}
+    .travel-route-btn.to-work{background:linear-gradient(135deg,#7c6fff,#5a4fcf);color:#fff}
+    .travel-route-btn.to-home{background:linear-gradient(135deg,#c8a96e,#a8843e);color:#0a0a12}
+    .travel-addr-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:13px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border)}
+    .travel-addr-row:active{opacity:.7}
+    .travel-addr-icon{font-size:18px;flex-shrink:0}
+    .travel-addr-info{flex:1}
+    .travel-addr-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .travel-addr-value{font-size:13px;font-weight:500;margin-top:2px;color:var(--text)}
+    .travel-edit-icon{font-size:14px;color:var(--muted)}
+    .tfl-line{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface2);border-radius:12px;margin-bottom:7px;border:1px solid var(--border)}
+    .tfl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+    .tfl-name{font-size:13px;font-weight:500;flex:1}
+    .tfl-status{font-size:12px;font-weight:600}
+    .tfl-status.good{color:var(--green)}
+    .tfl-status.minor{color:#ffb347}
+    .tfl-status.severe{color:var(--red)}
+    .open-maps-row{display:flex;gap:8px;margin-bottom:14px}
+    .maps-btn{flex:1;padding:12px 8px;border-radius:13px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+    .maps-btn:active{transform:scale(.96)}
+    .travel-loading{text-align:center;color:var(--muted);font-size:13px;padding:16px 0}
+
+    .tfl-widget-card{background:linear-gradient(135deg,#0d1a0d,#0a1a12);border:1px solid var(--border);border-radius:20px;padding:16px 16px 20px;margin-bottom:40px;position:relative;overflow:hidden}
+    .tfl-widget-card .glow-dot{background:#6fff9e}
+    .tfl-widget-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+    .tfl-widget-row:last-child{border-bottom:none}
+    .tfl-widget-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .tfl-widget-name{font-size:13px;font-weight:500;flex:1}
+    .tfl-widget-status{font-size:11px;font-weight:700}
+    .tfl-widget-status.good{color:var(--green)}
+    .tfl-widget-status.minor{color:#ffb347}
+    .tfl-widget-status.severe{color:var(--red)}
+    .tfl-manage-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(111,255,158,.08);border:1px solid rgba(111,255,158,.2);border-radius:99px;color:var(--green);font-size:11px;font-weight:600;cursor:pointer;margin-top:10px}
+    .tfl-pin-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
+    .tfl-pin-row:last-child{border-bottom:none}
+    .tfl-pin-toggle{width:38px;height:22px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+    .tfl-pin-toggle.on{background:var(--green);border-color:var(--green)}
+    .tfl-pin-toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+    .tfl-pin-toggle.on::after{transform:translateX(16px)}
+
+    .avatar-face{transition:all .4s;user-select:none}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    #step-avatar.ecstatic .avatar-face{animation:bounce 0.6s infinite}
+    .travel-dir-tab{flex:1;padding:11px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+    .travel-dir-tab.active{background:var(--accent);color:#0a0a12;border-color:var(--accent)}
+        /* CALENDAR */
+    .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .cal-month-label{font-family:'DM Serif Display',serif;font-size:22px}
+    .cal-nav-btn{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+    .cal-day-label{text-align:center;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;padding-bottom:8px}
+    .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;cursor:pointer;transition:background .15s;position:relative}
+    .cal-day:hover{background:var(--surface2)}
+    .cal-day.other-month{color:var(--muted);opacity:.4}
+    .cal-day.today{background:var(--accent);color:#0a0a12;font-weight:700}
+    .cal-day.has-event::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;background:var(--accent2);border-radius:50%}
+    .cal-day.selected:not(.today){background:var(--surface2);border:1px solid var(--accent)}
+    .cal-day.in-range{background:rgba(200,169,110,.15);border-radius:0}
+    .cal-day.range-start{background:var(--accent)!important;color:#0a0a12!important;border-radius:50% 0 0 50%}
+    .cal-day.range-end{background:var(--accent)!important;color:#0a0a12!important;border-radius:0 50% 50% 0}
+    .cal-day.range-start.range-end{border-radius:50%}
+    #cal-grid{user-select:none;-webkit-user-select:none}
+    .event-list{margin-top:18px}
+    .event-item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--surface);border-radius:14px;margin-bottom:8px;border:1px solid var(--border)}
+    .event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .event-info{flex:1}
+    .event-title{font-size:14px;font-weight:500}
+    .event-time{font-size:11px;color:var(--muted);margin-top:2px}
+    .event-src{font-size:10px;color:var(--accent2);margin-top:2px}
+    .add-btn{width:100%;padding:13px;background:var(--surface2);border:1px dashed rgba(200,169,110,.3);border-radius:14px;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+    .cal-sync-row{display:flex;gap:8px;margin-bottom:16px}
+    .sync-btn{flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+    .sync-btn:active{transform:scale(.96)}
+    .sync-btn.connected{border-color:var(--green);color:var(--green)}
+    /* WEATHER */
+    .weather-hero{border-radius:24px;padding:28px 22px;margin-bottom:14px;text-align:center;border:1px solid rgba(124,159,255,.15);position:relative;overflow:hidden;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .weather-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1a2a4a,#0d1a30);z-index:0}
+    .weather-content{position:relative;z-index:1}
+    .weather-emoji{font-size:64px;display:block;margin-bottom:6px;line-height:1}
+    .weather-temp{font-family:'DM Serif Display',serif;font-size:52px;line-height:1}
+    .weather-desc{font-size:15px;color:rgba(200,220,255,.75);margin-top:5px}
+    .weather-loc{font-size:12px;color:rgba(200,220,255,.5);margin-top:3px}
+    .weather-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .weather-stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:13px 8px;text-align:center}
+    .weather-stat-icon{font-size:20px;margin-bottom:4px}
+    .weather-stat-val{font-size:14px;font-weight:600}
+    .weather-stat-lbl{font-size:10px;color:var(--muted);letter-spacing:.04em}
+    .forecast-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+    .forecast-item{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 14px;text-align:center;min-width:68px}
+    .forecast-day{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-bottom:6px}
+    .forecast-icon{font-size:20px;margin-bottom:6px}
+    .forecast-hi{font-size:14px;font-weight:600}
+    .forecast-lo{font-size:11px;color:var(--muted)}
+    .weather-loading{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+    /* RECIPES */
+    .recipe-search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:14px}
+    .recipe-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+    .recipe-search input::placeholder{color:var(--muted)}
+    .recipe-cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+    .cat-pill{flex-shrink:0;padding:6px 14px;border-radius:99px;border:1px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s}
+    .cat-pill.active{background:var(--accent);color:#0a0a12;border-color:var(--accent);font-weight:700}
+    .recipe-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:12px;cursor:pointer;transition:transform .15s}
+    .recipe-card:active{transform:scale(.98)}
+    .recipe-thumb{height:90px;display:flex;align-items:center;justify-content:center;font-size:48px}
+    .recipe-body{padding:11px 15px 13px}
+    .recipe-title{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:4px}
+    .recipe-meta{font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+    .add-to-cart-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;background:rgba(111,255,158,.1);border:1px solid rgba(111,255,158,.25);border-radius:99px;color:var(--green);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+    .add-to-cart-btn.added{background:rgba(111,255,158,.2);border-color:rgba(111,255,158,.5)}
+    /* RECIPE DETAIL */
+    .recipe-detail{display:none;position:fixed;inset:0;width:100%;background:var(--bg);z-index:150;overflow-y:auto;box-sizing:border-box}
+    .recipe-detail.open{display:block;animation:slideIn .3s ease}
+    @keyframes slideIn{from{transform:translateX(calc(-50% + 18px));opacity:0}to{transform:translateX(-50%);opacity:1}}
+    .detail-header{padding:calc(var(--safe-top)+14px) 18px 14px;display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border)}
+    .back-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .detail-title{font-family:'DM Serif Display',serif;font-size:19px;flex:1;line-height:1.2}
+    .detail-body{padding:18px 20px calc(var(--safe-bottom)+30px);box-sizing:border-box}
+    .detail-hero{font-size:60px;text-align:center;padding:20px;background:var(--surface);border-radius:20px;margin-bottom:18px}
+    .detail-section{margin-bottom:22px}
+    .detail-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+    .ingredient-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
+    .ingredient-row:last-child{border-bottom:none}
+    .ingredient-name{font-size:14px}
+    .ingredient-qty{font-size:12px;color:var(--muted)}
+    .step-row{display:flex;gap:14px;margin-bottom:14px}
+    .step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#0a0a12;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+    .step-text{font-size:14px;line-height:1.65;color:rgba(240,237,232,.85)}
+    .recipe-link{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;color:var(--accent2);font-size:13px;font-weight:500;text-decoration:none;margin-bottom:12px}
+    .recipe-link:active{opacity:.7}
+    .detail-add-btn{width:100%;padding:14px;background:var(--accent);color:#0a0a12;border:none;border-radius:16px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+    /* SHOPPING */
+    .shop-tabs{display:flex;gap:8px;margin-bottom:18px}
+    .shop-tab{flex-shrink:0;padding:7px 16px;border-radius:99px;border:1px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s}
+    .shop-tab.active{background:var(--accent);color:#0a0a12;border-color:var(--accent);font-weight:700}
+    .shop-section{display:none}
+    .shop-section.active{display:block}
+    .recipe-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .recipe-pick-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:13px 10px;cursor:pointer;transition:all .15s;text-align:center}
+    .recipe-pick-card:active{transform:scale(.96)}
+    .recipe-pick-card.selected{border-color:var(--green);background:rgba(111,255,158,.06)}
+    .recipe-pick-emoji{font-size:26px;margin-bottom:5px}
+    .recipe-pick-name{font-size:11px;font-weight:600;line-height:1.3;color:var(--muted)}
+    .recipe-pick-card.selected .recipe-pick-name{color:var(--green)}
+    .check-badge{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--green);color:#0a0a12;font-size:10px;font-weight:700;line-height:16px;text-align:center;margin-top:3px}
+    .shop-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border-radius:14px;margin-bottom:7px;border:1px solid var(--border);cursor:pointer;transition:opacity .2s}
+    .shop-item.checked{opacity:.4}
+    .shop-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+    .shop-item.checked .shop-check{background:var(--green);border-color:var(--green);color:#0a0a12;font-size:13px;font-weight:700}
+    .shop-item-text{font-size:14px}
+    .shop-item.checked .shop-item-text{text-decoration:line-through;color:var(--muted)}
+    .shop-item-qty{font-size:11px;color:var(--muted);margin-top:1px}
+    .shop-delete-btn{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px 6px;border-radius:6px;flex-shrink:0;opacity:.5;transition:opacity .15s}
+    .shop-delete-btn:hover{opacity:1;color:var(--red)}
+    .list-tab-btn{flex-shrink:0;padding:7px 14px;border-radius:99px;border:1px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;white-space:nowrap;transition:all .15s;background:var(--surface);color:var(--muted)}
+    .list-tab-btn.active{background:var(--accent);color:#0a0a12;border-color:var(--accent)}
+    .shop-section-header{display:flex;align-items:center;gap:8px;padding:14px 0 8px;margin-top:4px}
+    .shop-section-emoji{font-size:18px}
+    .shop-section-name{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .shop-section-count{margin-left:auto;font-size:11px;color:var(--muted)}
+    .clear-btn{width:100%;padding:12px;background:none;border:1px solid rgba(255,111,111,.2);border-radius:12px;color:var(--red);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:12px}
+    .add-input-row{display:flex;gap:8px;margin-bottom:14px}
+    .add-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+    .add-input-row input::placeholder{color:var(--muted)}
+    .add-input-row button{padding:11px 16px;background:var(--accent);color:#0a0a12;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;align-items:flex-end;padding:0 14px calc(var(--safe-bottom)+14px)}
+    .modal-overlay.open{display:flex}
+    .modal-sheet{width:100%;max-width:430px;margin:0 auto;background:var(--surface);border-radius:24px;padding:28px 24px 32px;border:1px solid var(--border);box-sizing:border-box;max-height:90dvh;overflow-y:auto;animation:sheetUp .3s cubic-bezier(.22,1,.36,1)}
+    @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:-8px auto 24px}
+    .modal-title{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:10px}
+    .modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.7}
+    .modal-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:12px}
+    .modal-input::placeholder{color:var(--muted)}
+    .modal-btn{width:100%;padding:15px;background:var(--accent);color:#0a0a12;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+    .modal-cancel{width:100%;padding:12px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px}
+    .modal-step{background:var(--surface2);border-radius:14px;padding:14px;margin-bottom:10px;font-size:13px;color:var(--muted);line-height:1.7}
+    .modal-step strong{color:var(--text)}
+    /* TOAST */
+    .toast{position:fixed;bottom:calc(var(--safe-bottom)+90px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:10px 20px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── HOME ── -->
+<section class="screen active" id="screen-home">
+  <div class="home-header">
+    <div><div class="page-sub" style="margin:0 0 4px">Good morning</div><div class="greeting">Your <em>Hub</em></div></div>
+    <div class="date-badge" id="home-date"></div>
+  </div>
+  <div class="info-banner blue">
+    <div class="info-banner-icon">⚡</div>
+    <div><strong>Add to iPhone Home Screen</strong>Open in Safari → tap Share → "Add to Home Screen"</div>
+  </div>
+
+  <!-- Steps + Avatar Widget (TOP) -->
+  <div id="step-widget" style="background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:18px 20px;margin-bottom:16px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(200,169,110,.12);filter:blur(20px)"></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <!-- Memoji SVG avatar -->
+      <div id="step-avatar" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;position:relative;transition:all .4s">
+        <svg id="avatar-svg" viewBox="0 0 100 100" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+          <!-- Head -->
+          <circle cx="50" cy="52" r="36" fill="#FDDBB4"/>
+          <!-- Hair -->
+          <ellipse cx="50" cy="22" rx="30" ry="16" fill="#3B2314"/>
+          <rect x="20" y="18" width="60" height="20" rx="10" fill="#3B2314"/>
+          <!-- Eyes -->
+          <circle id="eye-l" cx="38" cy="50" r="5" fill="#2C1A0E"/>
+          <circle id="eye-r" cx="62" cy="50" r="5" fill="#2C1A0E"/>
+          <!-- Eye shine -->
+          <circle cx="40" cy="48" r="1.5" fill="white"/>
+          <circle cx="64" cy="48" r="1.5" fill="white"/>
+          <!-- Eyebrows -->
+          <path id="brow-l" d="M32 42 Q38 39 44 42" stroke="#3B2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path id="brow-r" d="M56 42 Q62 39 68 42" stroke="#3B2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Mouth -->
+          <path id="mouth" d="M40 64 Q50 70 60 64" stroke="#C47A5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Cheeks -->
+          <circle id="cheek-l" cx="30" cy="60" r="7" fill="rgba(255,150,120,0.3)"/>
+          <circle id="cheek-r" cx="70" cy="60" r="7" fill="rgba(255,150,120,0.3)"/>
+        </svg>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <div style="font-family:'DM Serif Display',serif;font-size:32px;line-height:1" id="step-count-val">0</div>
+          <div style="font-size:12px;color:var(--muted)">steps</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="step-mood-label">Tap + Log to add steps</div>
+        <div style="background:var(--surface2);border-radius:99px;height:6px;overflow:hidden">
+          <div id="step-progress-bar" style="height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width .8s ease"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Goal: 10,000 steps</div>
+      </div>
+      <button onclick="logSteps()" style="flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted)">🍎 Apple Health sync</div>
+      <button onclick="openHealthSetup()" style="padding:5px 12px;background:rgba(111,255,158,.08);border:1px solid rgba(111,255,158,.2);border-radius:99px;color:var(--green);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Set up →</button>
+    </div>
+  </div>
+
+  <div class="widget-grid">
+    <div class="widget weather-w" onclick="showScreen('weather')">
+      <div class="glow-dot"></div><div class="widget-icon" id="hw-wx-icon">🌤</div>
+      <div class="widget-name">Weather</div><div class="widget-value" id="hw-wx-temp">—</div>
+      <div class="widget-sub" id="hw-wx-desc">London</div>
+    </div>
+    <div class="widget cal-w" onclick="showScreen('calendar')">
+      <div class="glow-dot"></div><div class="widget-icon">📅</div>
+      <div class="widget-name">Calendar</div><div class="widget-value" id="hw-today-num"></div>
+      <div class="widget-sub" id="hw-today-day"></div>
+    </div>
+    <div class="widget recipe-w" onclick="showScreen('recipes')">
+      <div class="glow-dot"></div><div class="widget-icon">🍳</div>
+      <div class="widget-name">Recipes</div><div class="widget-value">16</div>
+      <div class="widget-sub">Your cookbook</div>
+    </div>
+    <div class="widget shop-w" onclick="showScreen('shopping')">
+      <div class="glow-dot"></div><div class="widget-icon">🛒</div>
+      <div class="widget-name">Shopping</div><div class="widget-value" id="hw-shop-count">0</div>
+      <div class="widget-sub">All lists · tap to view</div>
+    </div>
+    <div class="widget wide" style="background:linear-gradient(135deg,#0d1a2e,#0a1520)" onclick="showScreen('travel')">
+      <div class="glow-dot" style="background:#7cefff"></div><div class="widget-icon">🚇</div>
+      <div class="widget-name">Travel</div>
+      <div class="widget-value" id="hw-travel-val">W2 → Canary Wharf</div>
+      <div class="widget-sub" id="hw-travel-sub">Tap for routes & TfL status</div>
+    </div>
+  </div>
+  <!-- TfL Pinned Lines Widget -->
+  <div class="tfl-widget-card" id="tfl-home-widget">
+    <div class="glow-dot"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">🚇 My Lines</div>
+      <button class="tfl-manage-btn" onclick="openTflPinModal()">⚙ Manage</button>
+    </div>
+    <div id="tfl-home-lines"><div style="color:var(--muted);font-size:13px">Loading…</div></div>
+  </div>
+</section>
+
+<!-- ── CALENDAR ── -->
+<section class="screen" id="screen-calendar">
+  <div class="page-title">Calendar</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+    <button onclick="openCalPickerModal()" style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Calendar
+    </button>
+    <div id="cal-connected-badges" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  </div>
+  <div id="ics-error-banner" style="display:none;background:rgba(255,111,111,.08);border:1px solid rgba(255,111,111,.2);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.8"></div>
+  <div class="cal-nav">
+    <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <span class="cal-month-label" id="cal-heading"></span>
+    <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="event-list" id="event-list"><div class="card-label" id="event-list-label">Upcoming Events</div></div>
+  <button class="add-btn" onclick="addEvent()">＋ Add Event</button>
+</section>
+
+<!-- ── WEATHER ── -->
+<section class="screen" id="screen-weather">
+  <div class="page-title">Weather</div>
+  <div class="page-sub" id="wx-loc-label">London, England</div>
+  <div id="weather-content">
+    <div class="weather-loading">Loading weather…</div>
+  </div>
+</section>
+
+<!-- ── RECIPES ── -->
+<section class="screen" id="screen-recipes">
+  <div class="page-title">Recipes</div><div class="page-sub">Your personal cookbook</div>
+  <div class="recipe-search"><span>🔍</span><input type="text" placeholder="Search recipes…" oninput="filterRecipes(this.value)"/></div>
+  <div class="recipe-cats">
+    <div class="cat-pill active" onclick="filterCat(this,'All')">All</div>
+    <div class="cat-pill" onclick="filterCat(this,'Chinese')">Chinese</div>
+    <div class="cat-pill" onclick="filterCat(this,'Japanese')">Japanese</div>
+    <div class="cat-pill" onclick="filterCat(this,'Thai')">Thai</div>
+    <div class="cat-pill" onclick="filterCat(this,'Korean')">Korean</div>
+    <div class="cat-pill" onclick="filterCat(this,'Italian')">Italian</div>
+  </div>
+  <div id="recipe-list"></div>
+</section>
+
+<!-- ── TRAVEL ── -->
+<section class="screen" id="screen-travel">
+  <div class="page-title">Travel</div>
+  <div class="page-sub">Your daily commute</div>
+
+  <!-- Address cards -->
+  <div class="travel-addr-row" onclick="openEditAddress('home')">
+    <div class="travel-addr-icon">🏠</div>
+    <div class="travel-addr-info">
+      <div class="travel-addr-label">Home</div>
+      <div class="travel-addr-value" id="addr-home-display">W2 1DN</div>
+    </div>
+    <div class="travel-edit-icon">✎</div>
+  </div>
+  <div class="travel-addr-row" onclick="openEditAddress('work')">
+    <div class="travel-addr-icon">🏢</div>
+    <div class="travel-addr-info">
+      <div class="travel-addr-label">Work</div>
+      <div class="travel-addr-value" id="addr-work-display">8 Canada Square, London</div>
+    </div>
+    <div class="travel-edit-icon">✎</div>
+  </div>
+
+  <!-- Route buttons -->
+  <div style="display:flex;gap:10px;margin:16px 0">
+    <button class="travel-route-btn to-work" style="flex:1" onclick="openRoute('towork')">
+      🏢 Get to Work
+    </button>
+    <button class="travel-route-btn to-home" style="flex:1" onclick="openRoute('tohome')">
+      🏠 Get Home
+    </button>
+  </div>
+
+  <!-- Open in maps row -->
+  <div class="open-maps-row">
+    <button class="maps-btn" onclick="openInGoogleMaps('towork')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Google Maps → Work
+    </button>
+    <button class="maps-btn" onclick="openInGoogleMaps('tohome')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Google Maps → Home
+    </button>
+  </div>
+  <div class="open-maps-row">
+    <button class="maps-btn" onclick="openInCitymapper('towork')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Citymapper → Work
+    </button>
+    <button class="maps-btn" onclick="openInCitymapper('tohome')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Citymapper → Home
+    </button>
+  </div>
+
+  <!-- TfL Status -->
+  <div style="display:flex;align-items:center;margin-top:8px;margin-bottom:10px"><div class="card-label">🚇 TfL Line Status</div><div style="margin-left:auto;font-size:13px;width:36px;text-align:center">📌</div></div>
+  <div id="tfl-status-container"><div class="travel-loading">Loading TfL status…</div></div>
+</section>
+
+<!-- ── SHOP OVERVIEW ── -->
+<section class="screen" id="screen-shopoverview">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <div class="page-title" style="margin:0">Shopping</div>
+    <button onclick="showScreen('shopping')" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Manage →</button>
+  </div>
+  <div class="page-sub">All your lists in one view</div>
+  <div id="shop-overview-container"></div>
+</section>
+
+<!-- ── SHOPPING ── -->
+<section class="screen" id="screen-shopping">
+  <div class="page-title">Shopping</div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+    <div style="flex:1;overflow-x:auto;display:flex;gap:8px;padding-bottom:2px" id="list-tabs-row"></div>
+    <button onclick="openNewListModal()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+  </div>
+  <div class="shop-tabs">
+    <div class="shop-tab active" onclick="switchShopTab(this,'pick')">📖 By Recipe</div>
+    <div class="shop-tab" onclick="switchShopTab(this,'list')">🛒 My List</div>
+  </div>
+  <div class="shop-section active" id="shop-pick">
+    <div class="card-label">Tap to add · tap again to remove all ingredients</div>
+    <div class="recipe-picker" id="recipe-picker"></div>
+    <button class="add-btn" style="margin-top:0" onclick="goToList()">View Shopping List →</button>
+  </div>
+  <div id="shop-overview-panel" style="display:none"></div>
+  <div class="shop-section" id="shop-list">
+    <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+      <div class="add-input-row" style="flex:1;margin:0">
+        <input type="text" id="custom-item-input" placeholder="Add item manually…"/>
+        <button onclick="addCustomItem()">+</button>
+      </div>
+      <select id="sort-select" onchange="setSortMode(this.value)" style="flex-shrink:0;padding:11px 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;padding-right:28px;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(240,237,232,0.45)%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>');background-repeat:no-repeat;background-position:right 10px center">
+        <option value="type">Sort: Type</option>
+        <option value="recipe">Sort: Recipe</option>
+        <option value="alpha">Sort: A–Z</option>
+      </select>
+    </div>
+    <div id="shop-items-container"></div>
+    <button class="clear-btn" onclick="clearChecked()">Clear checked items</button>
+    <button class="clear-btn" style="border-color:rgba(255,111,111,.4);margin-top:6px" onclick="clearAll()">Clear entire list</button>
+  </div>
+</section>
+
+<!-- ── NAV ── -->
+<nav>
+  <button class="nav-btn active" onclick="showScreen('home')" id="nav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+  </button>
+  <button class="nav-btn" onclick="showScreen('calendar')" id="nav-calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar
+  </button>
+  <button class="nav-btn" onclick="showScreen('weather')" id="nav-weather">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>Weather
+  </button>
+  <button class="nav-btn" onclick="showScreen('recipes')" id="nav-recipes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2s-5 2-5 11"/><path d="M16 22h2a2 2 0 002-2v-3"/></svg>Recipes
+  </button>
+  <button class="nav-btn" onclick="showScreen('travel')" id="nav-travel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Travel
+  </button>
+  <button class="nav-btn" onclick="showScreen('shopping')" id="nav-shopping">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shopping
+  </button>
+</nav>
+
+<!-- ── RECIPE DETAIL ── -->
+<div class="recipe-detail" id="recipe-detail">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">‹</button>
+    <div class="detail-title" id="detail-title"></div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-hero" id="detail-emoji"></div>
+    <div id="detail-link-row"></div>
+    <div class="detail-section">
+      <div class="detail-section-title">Ingredients</div>
+      <div id="detail-ingredients"></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Method</div>
+      <div id="detail-steps"></div>
+    </div>
+    <button class="detail-add-btn" onclick="addCurrentToCart()">🛒 Add All to Shopping List</button>
+  </div>
+</div>
+
+<!-- ── NEW LIST MODAL ── -->
+<div class="modal-overlay" id="new-list-modal" onclick="closeModal(event,'new-list-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New List</div>
+    <div class="modal-sub">Create a shopping list for any occasion — groceries, travel, party, etc.</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input class="modal-input" style="width:60px;flex-shrink:0;text-align:center;font-size:22px;padding:10px 8px" type="text" id="new-list-emoji" placeholder="📝" maxlength="2"/>
+      <input class="modal-input" style="flex:1;margin:0" type="text" id="new-list-name" placeholder="List name (e.g. Hong Kong)"/>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">🛒</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">✈️</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">🎉</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">🏠</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">🍜</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">🧴</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">💊</span>
+      <span onclick="document.getElementById('new-list-emoji').value=this.textContent" style="font-size:22px;cursor:pointer;padding:4px">🎁</span>
+    </div>
+    <button class="modal-btn" onclick="createNewList()">Create List</button>
+    <button class="modal-cancel" onclick="closeModalById('new-list-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── EDIT LIST MODAL ── -->
+<div class="modal-overlay" id="edit-list-modal" onclick="closeModal(event,'edit-list-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit List</div>
+    <input type="hidden" id="edit-list-id"/>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input class="modal-input" style="width:60px;flex-shrink:0;text-align:center;font-size:22px;padding:10px 8px" type="text" id="edit-list-emoji" maxlength="2"/>
+      <input class="modal-input" style="flex:1;margin:0" type="text" id="edit-list-name" placeholder="List name"/>
+    </div>
+    <button class="modal-btn" onclick="saveEditList()">Save Changes</button>
+    <button class="modal-cancel" style="color:var(--red);margin-top:8px" onclick="deleteList()">Delete List</button>
+    <button class="modal-cancel" onclick="closeModalById('edit-list-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── OUTLOOK MODAL ── -->
+<div class="modal-overlay" id="outlook-modal" onclick="closeModal(event,'outlook-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Outlook Calendar</div>
+    <div class="modal-sub">Paste your Outlook ICS link to sync your Exchange / Outlook calendar. Events update live.</div>
+    <div class="modal-step"><strong>To get your ICS link:</strong><br>
+    1. Go to <span style="color:var(--accent2)">outlook.office.com</span><br>
+    2. Click ⚙️ Settings → Calendar → <strong>Shared calendars</strong><br>
+    3. Under "Publish a calendar" → select calendar → <strong>Can view all details</strong> → click <strong>Publish</strong><br>
+    4. Copy the <strong>ICS link</strong> (not the HTML link)</div>
+    <input class="modal-input" type="url" id="outlook-url-input" placeholder="https://outlook.office365.com/owa/…/reachcalendar.ics"/>
+    <button class="modal-btn" onclick="connectOutlook()">Connect Outlook Calendar</button>
+    <button class="modal-cancel" onclick="closeModalById('outlook-modal')">Cancel</button>
+  </div>
+</div>
+
+
+
+<!-- ── TfL REASON MODAL ── -->
+<div class="modal-overlay" id="tfl-reason-modal" onclick="closeModal(event,'tfl-reason-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="tfl-reason-title" style="margin-bottom:4px"></div>
+    <div id="tfl-reason-status" style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:14px"></div>
+    <div id="tfl-reason-body" style="font-size:14px;color:var(--text);line-height:1.7;background:var(--surface2);border-radius:14px;padding:14px 16px;border:1px solid var(--border)"></div>
+    <button class="modal-btn" style="margin-top:16px" onclick="closeModalById('tfl-reason-modal')">Close</button>
+  </div>
+</div>
+
+<!-- ── TfL PIN MODAL ── -->
+<div class="modal-overlay" id="tfl-pin-modal" onclick="closeModal(event,'tfl-pin-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">My Lines</div>
+    <div class="modal-sub">Choose which TfL lines to show on your home screen.</div>
+    <div id="tfl-pin-list"></div>
+    <button class="modal-btn" onclick="saveTflPins()">Save</button>
+    <button class="modal-cancel" onclick="closeModalById('tfl-pin-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── HEALTH SETUP MODAL ── -->
+<div class="modal-overlay" id="health-setup-modal" onclick="closeModal(event,'health-setup-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Connect Apple Health</div>
+    <div class="modal-sub">Set up a one-time Shortcut so your steps sync automatically every time you open the app.</div>
+
+    <div style="background:var(--surface2);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:2;border:1px solid var(--border)">
+      <div style="font-weight:700;margin-bottom:6px;color:var(--accent)">1. Create the Shortcut</div>
+      Open the <strong>Shortcuts</strong> app → tap <strong>+</strong> → Name it <strong>"Hub Steps"</strong><br>
+      Add these 3 actions:<br>
+      &nbsp;① <strong>Find Health Samples</strong> → Steps → Today<br>
+      &nbsp;② <strong>Calculate Statistics</strong> → Sum<br>
+      &nbsp;③ <strong>Open URLs</strong> → paste this URL:
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+      <div id="shortcut-url-display" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--accent);word-break:break-all;font-family:monospace"></div>
+      <button onclick="copyShortcutUrl()" style="flex-shrink:0;padding:10px 14px;background:var(--accent);border:none;border-radius:10px;color:#0a0a12;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Copy</button>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:2;border:1px solid var(--border)">
+      <div style="font-weight:700;margin-bottom:6px;color:var(--accent)">2. Automate it</div>
+      Go to <strong>Automation</strong> tab → <strong>+</strong> → <strong>App</strong><br>
+      Choose <strong>Safari</strong> (or your browser) → <strong>Is Opened</strong><br>
+      Add action: <strong>Run Shortcut</strong> → Hub Steps<br>
+      Turn off <strong>"Ask Before Running"</strong>
+    </div>
+
+    <div style="background:rgba(111,255,158,.08);border:1px solid rgba(111,255,158,.2);border-radius:14px;padding:12px 14px;font-size:12px;color:var(--green);margin-bottom:16px">
+      ✅ Once set up, steps will sync automatically every time you open the hub — no tapping needed.
+    </div>
+
+    <button class="modal-btn" onclick="closeModalById('health-setup-modal')">Got it!</button>
+  </div>
+</div>
+
+<!-- ── STEP INPUT MODAL ── -->
+<div class="modal-overlay" id="step-input-modal" onclick="closeModal(event,'step-input-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Steps</div>
+    <div class="modal-sub">How many steps have you done today?</div>
+    <input class="modal-input" type="number" id="step-input-val" placeholder="e.g. 8500" inputmode="numeric"/>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button onclick="document.getElementById('step-input-val').value=2500" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--text);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">2,500</button>
+      <button onclick="document.getElementById('step-input-val').value=5000" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--text);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">5,000</button>
+      <button onclick="document.getElementById('step-input-val').value=7500" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--text);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">7,500</button>
+      <button onclick="document.getElementById('step-input-val').value=10000" style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--text);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">10,000</button>
+    </div>
+    <button class="modal-btn" onclick="saveStepInput()">Save Steps</button>
+    <button class="modal-cancel" onclick="closeModalById('step-input-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── EDIT ADDRESS MODAL ── -->
+<div class="modal-overlay" id="edit-address-modal" onclick="closeModal(event,'edit-address-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="edit-addr-title">Edit Address</div>
+    <div class="modal-sub">Enter a full address or postcode.</div>
+    <input type="hidden" id="edit-addr-type"/>
+    <input class="modal-input" type="text" id="edit-addr-input" placeholder="e.g. W2 1DN or 8 Canada Square"/>
+    <button class="modal-btn" onclick="saveAddress()">Save</button>
+    <button class="modal-cancel" onclick="closeModalById('edit-address-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── ADD EVENT MODAL ── -->
+<div class="modal-overlay" id="add-event-modal" onclick="closeModal(event,'add-event-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Event</div>
+    <input class="modal-input" type="text" id="ev-title" placeholder="Event title…"/>
+    <div id="ev-date-range-label" style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px;padding:0 2px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">START</div><input class="modal-input" type="date" id="ev-date" style="color-scheme:dark;margin-bottom:0" oninput="updateRangeLabel()"/></div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">END</div><input class="modal-input" type="date" id="ev-end-date" style="color-scheme:dark;margin-bottom:0" oninput="updateRangeLabel()"/></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">START TIME</div><input class="modal-input" type="time" id="ev-time" style="color-scheme:dark;margin-bottom:0"/></div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">END TIME</div><input class="modal-input" type="time" id="ev-end-time" style="color-scheme:dark;margin-bottom:0"/></div>
+    </div>
+    <div style="margin-bottom:18px;margin-top:4px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase;font-weight:600">Colour</div>
+      <div style="display:flex;gap:14px;margin-top:4px">
+        <label style="cursor:pointer"><input type="radio" name="ev-col" value="#7c6fff" checked onchange="document.getElementById('ev-color').value=this.value" style="display:none"/><div style="width:26px;height:26px;border-radius:50%;background:#7c6fff;border:2px solid transparent" class="col-swatch"></div></label>
+        <label style="cursor:pointer"><input type="radio" name="ev-col" value="#c8a96e" onchange="document.getElementById('ev-color').value=this.value" style="display:none"/><div style="width:26px;height:26px;border-radius:50%;background:#c8a96e" class="col-swatch"></div></label>
+        <label style="cursor:pointer"><input type="radio" name="ev-col" value="#6fff9e" onchange="document.getElementById('ev-color').value=this.value" style="display:none"/><div style="width:26px;height:26px;border-radius:50%;background:#6fff9e" class="col-swatch"></div></label>
+        <label style="cursor:pointer"><input type="radio" name="ev-col" value="#ff7c9e" onchange="document.getElementById('ev-color').value=this.value" style="display:none"/><div style="width:26px;height:26px;border-radius:50%;background:#ff7c9e" class="col-swatch"></div></label>
+        <label style="cursor:pointer"><input type="radio" name="ev-col" value="#7ccfff" onchange="document.getElementById('ev-color').value=this.value" style="display:none"/><div style="width:26px;height:26px;border-radius:50%;background:#7ccfff" class="col-swatch"></div></label>
+      </div>
+      <input type="hidden" id="ev-color" value="#7c6fff"/>
+    </div>
+    <button class="modal-btn" onclick="saveNewEvent()">Add Event</button>
+    <button class="modal-cancel" onclick="closeModalById('add-event-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── CAL PICKER MODAL ── -->
+<div class="modal-overlay" id="cal-picker-modal" onclick="closeModal(event,'cal-picker-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Calendar</div>
+    <div class="modal-sub">Choose a calendar to connect.</div>
+    <div onclick="closeModalById('cal-picker-modal');openGoogleCalModal()" style="display:flex;align-items:center;gap:16px;padding:18px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;cursor:pointer;margin-bottom:12px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      <div><div style="font-size:14px;font-weight:600">Google Calendar</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Connect via OAuth</div></div>
+      <div id="badge-gcal" style="margin-left:auto;font-size:12px;color:var(--green);display:none">✓ Connected</div>
+    </div>
+    <div onclick="closeModalById('cal-picker-modal');openICalModal()" style="display:flex;align-items:center;gap:16px;padding:18px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;cursor:pointer;margin-bottom:12px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div><div style="font-size:14px;font-weight:600">iCloud Calendar</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Paste public .ics link</div></div>
+      <div id="badge-ical" style="margin-left:auto;font-size:12px;color:var(--green);display:none">✓ Connected</div>
+    </div>
+    <div onclick="closeModalById('cal-picker-modal');openOutlookModal()" style="display:flex;align-items:center;gap:16px;padding:18px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;cursor:pointer;margin-bottom:12px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#0078D4"/><path d="M7 7h4.5a2.5 2.5 0 010 5H7V7zm0 5h5a3 3 0 010 6H7v-6z" fill="white" opacity=".9"/></svg>
+      <div><div style="font-size:14px;font-weight:600">Outlook / Exchange</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Paste published .ics link</div></div>
+      <div id="badge-outlook" style="margin-left:auto;font-size:12px;color:var(--green);display:none">✓ Connected</div>
+    </div>
+    <button class="modal-cancel" onclick="closeModalById('cal-picker-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── GOOGLE CAL MODAL ── -->
+<div class="modal-overlay" id="gcal-modal" onclick="closeModal(event,'gcal-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Google Calendar</div>
+    <div class="modal-sub">Connect your Google Calendar to see events here. You'll need a Google API Client ID.</div>
+    <div class="modal-step"><strong>Step 1</strong> — Go to <span style="color:var(--accent2)">console.cloud.google.com</span>, create a project and enable the Google Calendar API.</div>
+    <div class="modal-step"><strong>Step 2</strong> — Create OAuth 2.0 credentials. Add your app's URL as an authorised origin.</div>
+    <div class="modal-step"><strong>Step 3</strong> — Paste your Client ID below.</div>
+    <input class="modal-input" type="text" id="gcal-client-id-input" placeholder="Paste Google Client ID here…"/>
+    <button class="modal-btn" onclick="connectGoogle()">Connect Google Calendar</button>
+    <button class="modal-cancel" onclick="closeModalById('gcal-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── ICAL MODAL ── -->
+<div class="modal-overlay" id="ical-modal" onclick="closeModal(event,'ical-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">iCloud Calendar</div>
+    <div class="modal-sub">Subscribe to a public iCloud calendar using its .ics link.</div>
+    <div class="modal-step"><strong>On your Mac/iPhone</strong> — Open Calendar → right-click a calendar → "Share Calendar" → enable Public Calendar → copy the webcal:// link.</div>
+    <div class="modal-step"><strong>Paste the link below.</strong> Replace <em>webcal://</em> with <em>https://</em> first. Events will be fetched and displayed read-only.</div>
+    <input class="modal-input" type="url" id="ical-url-input" placeholder="https://p63-caldav.icloud.com/…"/>
+    <button class="modal-btn" onclick="connectIcal()">Load iCloud Calendar</button>
+    <button class="modal-cancel" onclick="closeModalById('ical-modal')">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ═══════════════════════════════════════════════════════
+// RECIPE DATA
+// ═══════════════════════════════════════════════════════
+const RECIPES=[
+  {id:1,emoji:'🍗',name:'Hainanese Chicken Rice',cuisine:'Chinese',time:'60 min',serves:4,
+   url:'https://kwokspots.com/hainanese-chicken-rice/',
+   ingredients:[
+     {n:'Whole chicken',q:'1 large',cat:'Meat & Fish'},
+     {n:'Jasmine rice',q:'2 cups',cat:'Dry Goods & Pasta'},
+     {n:'Scallions / Spring onions',q:'4 stalks',cat:'Fruit & Veg'},
+     {n:'Ginger',q:'3 slices + 2 tbsp',cat:'Fruit & Veg'},
+     {n:'Garlic',q:'8 cloves',cat:'Fruit & Veg'},
+     {n:'Shallot',q:'1 small',cat:'Fruit & Veg'},
+     {n:'Turmeric powder',q:'1 tsp',cat:'Spices & Sauces'},
+     {n:'Sesame oil',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Red chillies (optional)',q:'2',cat:'Fruit & Veg'},
+     {n:'Lime',q:'½',cat:'Fruit & Veg'}
+   ],
+   steps:['Season chicken with salt. Bring a large pot of water to boil with scallions, ginger, garlic and turmeric.','Dip chicken in boiling water 3 times (5 sec each) to tighten the skin, then simmer covered for 45 minutes.','Transfer to an ice bath for 10 minutes — this gives that springy elastic texture.','Fry shallot, ginger and garlic in oil 1–2 min. Add washed rice and turmeric, stir to coat; move to rice cooker.','Cook rice using 2¼ cups of the reserved chicken broth.','Make ginger-scallion oil: fine-chop ginger and scallion with salt, pour over ½ cup smoking hot oil.','Debone chicken, brush with sesame oil. Serve over rice with ginger-scallion oil and optional chilli sauce.']},
+  {id:2,emoji:'🍆',name:'Aubergine & Mince Pork',cuisine:'Chinese',time:'20 min',serves:3,
+   url:'https://redhousespice.com/eggplant-with-garlic-sauce/',
+   ingredients:[
+     {n:'Aubergine',q:'2 large',cat:'Fruit & Veg'},
+     {n:'Minced pork',q:'150g',cat:'Meat & Fish'},
+     {n:'Doubanjiang (garlic chilli paste)',q:'1.5 tbsp',cat:'Spices & Sauces'},
+     {n:'Black rice vinegar',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Shaoxing rice wine',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Dark soy sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Cornstarch',q:'1 tbsp',cat:'Dry Goods & Pasta'},
+     {n:'Sesame oil',q:'1 tsp',cat:'Spices & Sauces'},
+     {n:'Garlic',q:'4 cloves',cat:'Fruit & Veg'},
+     {n:'Ginger',q:'1 thumb',cat:'Fruit & Veg'},
+     {n:'Scallions',q:'2 stalks',cat:'Fruit & Veg'}
+   ],
+   steps:['Cut aubergine into batons; soak in salted water 10 min, drain and pat dry.','Mix sauce: doubanjiang, soy, vinegar, Shaoxing wine, sugar, cornstarch + 3 tbsp water.','Stir-fry minced pork until browned; remove and set aside.','Fry garlic and ginger 30 sec in the same wok, add aubergine and stir-fry on high 4–5 min until softened.','Return pork, pour in sauce, toss together and cook until thickened.','Finish with sesame oil and sliced scallions.']},
+  {id:3,emoji:'🍜',name:'Dan Dan Noodles',cuisine:'Chinese',time:'30 min',serves:2,
+   url:'https://m.youtube.com/watch?v=8VS3B0D_Pv8',
+   ingredients:[
+     {n:'Wheat noodles',q:'200g',cat:'Dry Goods & Pasta'},
+     {n:'Minced pork',q:'150g',cat:'Meat & Fish'},
+     {n:'Ya cai (preserved veg)',q:'3 tbsp',cat:'Spices & Sauces'},
+     {n:'Sesame paste / peanut butter',q:'3 tbsp',cat:'Spices & Sauces'},
+     {n:'Chilli oil',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Soy sauce',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Garlic',q:'3 cloves',cat:'Fruit & Veg'},
+     {n:'Ginger',q:'1 thumb',cat:'Fruit & Veg'},
+     {n:'Scallions',q:'2 stalks',cat:'Fruit & Veg'},
+     {n:'Sichuan peppercorn',q:'1 tsp',cat:'Spices & Sauces'},
+     {n:'Black vinegar',q:'1 tbsp',cat:'Spices & Sauces'}
+   ],
+   steps:['Make sauce: mix sesame paste, chilli oil, soy, black vinegar. Loosen with noodle water later.','Toast and grind Sichuan peppercorn; stir into sauce.','Fry minced pork with garlic and ginger until crispy; add ya cai and soy, cook 2 more min.','Boil noodles; drain and reserve cooking water. Divide sauce into bowls.','Top with noodles and crispy pork, garnish with scallions. Toss before eating.']},
+  {id:4,emoji:'🌿',name:'Pad Krapow',cuisine:'Thai',time:'20 min',serves:2,
+   url:'https://www.allrecipes.com/recipe/257938/spicy-thai-basil-chicken-pad-krapow-gai/',
+   ingredients:[
+     {n:'Minced chicken thighs',q:'400g',cat:'Meat & Fish'},
+     {n:'Shallots',q:'3',cat:'Fruit & Veg'},
+     {n:'Garlic',q:'5 cloves',cat:'Fruit & Veg'},
+     {n:'Thai chillies',q:'3–5',cat:'Fruit & Veg'},
+     {n:'Thai basil',q:'1 big handful',cat:'Fruit & Veg'},
+     {n:'Fish sauce',q:'1.5 tbsp',cat:'Spices & Sauces'},
+     {n:'Oyster sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Soy sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Eggs',q:'1 per person',cat:'Dairy & Eggs'},
+     {n:'Rice',q:'for serving',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Pound or roughly chop garlic and Thai chillies together.','Heat wok until smoking; fry garlic-chilli paste 30 sec until fragrant.','Add minced chicken, stir-fry on high heat breaking up clumps until cooked through.','Add sliced shallots, fish sauce, oyster sauce, soy sauce, sugar and stock.','Toss in Thai basil; cook 30 sec until just wilted. Serve over rice with a fried egg.']},
+  {id:5,emoji:'🥩',name:'Gyu Don',cuisine:'Japanese',time:'25 min',serves:2,
+   url:'https://thewoksoflife.com/gyudon-recipe-beef-rice/',
+   ingredients:[
+     {n:'Thinly sliced beef',q:'300g',cat:'Meat & Fish'},
+     {n:'Onion',q:'1 large',cat:'Fruit & Veg'},
+     {n:'Scallions',q:'2 stalks',cat:'Fruit & Veg'},
+     {n:'Mirin',q:'3 tbsp',cat:'Spices & Sauces'},
+     {n:'Soy sauce',q:'3 tbsp',cat:'Spices & Sauces'},
+     {n:'Beef stock',q:'200ml',cat:'Tins & Jars'},
+     {n:'Rice',q:'for serving',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Slice onion into half-moons; simmer in beef stock with mirin, soy and sugar for 8 min.','Add thinly sliced beef; cook just until no longer pink, about 2–3 min.','Ladle beef and onions over steamed rice.','Top with sliced scallions and an optional raw egg yolk.']},
+  {id:6,emoji:'🌶',name:'Sausage Gochujang Rigatoni',cuisine:'Italian',time:'20 min',serves:4,
+   url:'https://www.mob.co.uk/recipes/sausage-gochujang-rigatoni',
+   ingredients:[
+     {n:'Pork sausages',q:'6',cat:'Meat & Fish'},
+     {n:'Rigatoni',q:'400g',cat:'Dry Goods & Pasta'},
+     {n:'Shallots',q:'2',cat:'Fruit & Veg'},
+     {n:'Garlic',q:'3 cloves',cat:'Fruit & Veg'},
+     {n:'Gochujang',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Single cream',q:'150ml',cat:'Dairy & Eggs'},
+     {n:'Honey',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Lime',q:'1',cat:'Fruit & Veg'},
+     {n:'Butter',q:'1 tbsp',cat:'Dairy & Eggs'},
+     {n:'Parmesan',q:'to serve',cat:'Dairy & Eggs'},
+     {n:'Fresh coriander',q:'handful',cat:'Fruit & Veg'}
+   ],
+   steps:['Squeeze sausage meat from casings; fry breaking into chunks until golden.','Add diced shallots and garlic; soften 3 min.','Stir in gochujang and honey; cook 1 min. Add cream and a splash of pasta water.','Cook rigatoni al dente; toss into sauce with butter.','Squeeze lime juice over, top with parmesan and coriander.']},
+  {id:7,emoji:'🍛',name:'Chicken Katsu Curry',cuisine:'Japanese',time:'40 min',serves:3,
+   ingredients:[
+     {n:'Chicken breast',q:'3 pieces',cat:'Meat & Fish'},
+     {n:'Panko breadcrumbs',q:'1 cup',cat:'Dry Goods & Pasta'},
+     {n:'Eggs',q:'1',cat:'Dairy & Eggs'},
+     {n:'Carrots',q:'2',cat:'Fruit & Veg'},
+     {n:'Potato',q:'2 medium',cat:'Fruit & Veg'},
+     {n:'Onion',q:'1',cat:'Fruit & Veg'},
+     {n:'Katsu curry cubes',q:'1 pack',cat:'Spices & Sauces'},
+     {n:'Rice',q:'for serving',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Dice onion, carrot and potato; fry onion until soft then add carrot and potato.','Add water per curry cube instructions; simmer 15 min until veg is tender.','Break in curry cubes and stir until sauce thickens.','Bread chicken: flour → egg → panko. Bake at 200°C for 20 min or shallow fry until golden.','Slice katsu and serve over rice with curry sauce poured alongside.']},
+  {id:8,emoji:'🍝',name:'Chicken Chorizo Pasta',cuisine:'Italian',time:'30 min',serves:4,
+   ingredients:[
+     {n:'Chicken thighs (diced)',q:'400g',cat:'Meat & Fish'},
+     {n:'Chorizo',q:'150g',cat:'Meat & Fish'},
+     {n:'Onion',q:'1',cat:'Fruit & Veg'},
+     {n:'Garlic',q:'4 cloves',cat:'Fruit & Veg'},
+     {n:'Tomato paste',q:'2 tbsp',cat:'Tins & Jars'},
+     {n:'Single cream',q:'100ml',cat:'Dairy & Eggs'},
+     {n:'Spinach',q:'2 handfuls',cat:'Fruit & Veg'},
+     {n:'Fusilli',q:'350g',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Cook fusilli in salted water; reserve a cup of pasta water.','Fry sliced chorizo until crispy; remove. Fry chicken in same pan until golden.','Add onion and garlic; soften 3 min. Stir in tomato paste and cook 2 min.','Add cream and pasta water to loosen. Stir in spinach until wilted.','Return chorizo, toss in pasta, season and serve.']},
+  {id:9,emoji:'🍚',name:'Kimchi Fried Rice',cuisine:'Korean',time:'15 min',serves:2,
+   url:'https://www.maangchi.com/recipe/kimchi-bokkeumbap',
+   ingredients:[
+     {n:'Cooked rice (day-old)',q:'2 cups',cat:'Dry Goods & Pasta'},
+     {n:'Kimchi',q:'150g',cat:'Chilled & Deli'},
+     {n:'Bacon or Spam',q:'100g',cat:'Meat & Fish'},
+     {n:'Onion',q:'½',cat:'Fruit & Veg'},
+     {n:'Gochujang',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Sesame oil',q:'1 tsp',cat:'Spices & Sauces'},
+     {n:'Soy sauce',q:'1 tsp',cat:'Spices & Sauces'},
+     {n:'Eggs',q:'2',cat:'Dairy & Eggs'},
+     {n:'Scallions',q:'2 stalks',cat:'Fruit & Veg'},
+     {n:'Sesame seeds',q:'to garnish',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Fry chopped bacon or Spam until crispy. Add diced onion and cook 2 min.','Add kimchi with some of its juice, and gochujang; stir-fry 2 min.','Add day-old rice, breaking up clumps, and toss on high heat.','Season with soy sauce and sesame oil.','Serve topped with a fried egg, scallions and sesame seeds.']},
+  {id:10,emoji:'🥓',name:'Carbonara',cuisine:'Italian',time:'25 min',serves:2,
+   ingredients:[
+     {n:'Linguine',q:'200g',cat:'Dry Goods & Pasta'},
+     {n:'Bacon / pancetta',q:'150g',cat:'Meat & Fish'},
+     {n:'Eggs',q:'2 yolks + 1 whole',cat:'Dairy & Eggs'},
+     {n:'Parmesan (grated)',q:'60g',cat:'Dairy & Eggs'},
+     {n:'Pecorino (grated)',q:'20g',cat:'Dairy & Eggs'}
+   ],
+   steps:['Cook linguine in well-salted water al dente; reserve a large cup of pasta water.','Fry bacon until golden and crispy.','Whisk eggs with most of the parmesan; season heavily with black pepper.','Off the heat, toss drained pasta into pan then quickly pour in egg mixture, tossing constantly.','Add splashes of pasta water to create a silky sauce. Serve with remaining cheese.']},
+  {id:11,emoji:'🐟',name:'Salmon Poke Bowl',cuisine:'Japanese',time:'15 min',serves:2,
+   ingredients:[
+     {n:'Sashimi-grade salmon',q:'250g',cat:'Meat & Fish'},
+     {n:'Sushi rice',q:'1.5 cups',cat:'Dry Goods & Pasta'},
+     {n:'Avocado',q:'1',cat:'Fruit & Veg'},
+     {n:'Cucumber',q:'½',cat:'Fruit & Veg'},
+     {n:'Kewpie mayo',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Soy sauce',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Sesame oil',q:'1 tsp',cat:'Spices & Sauces'},
+     {n:'Sesame seeds',q:'1 tbsp',cat:'Dry Goods & Pasta'},
+     {n:'Scallions',q:'2 stalks',cat:'Fruit & Veg'}
+   ],
+   steps:['Cook sushi rice; season with rice vinegar and a pinch of sugar.','Dice salmon into 2cm cubes; marinate in soy sauce and sesame oil for 5 min.','Slice avocado and cucumber.','Assemble: rice base, then salmon, avocado and cucumber on top.','Drizzle with Kewpie mayo. Finish with sesame seeds and scallions.']},
+  {id:12,emoji:'🍗',name:'Soy Glazed Chicken',cuisine:'Chinese',time:'20 min',serves:3,
+   url:'https://tiffycooks.com/soy-glazed-chicken-20-minutes-only-2/',
+   ingredients:[
+     {n:'Chicken thighs',q:'4 bone-in',cat:'Meat & Fish'},
+     {n:'Cornstarch',q:'2 tbsp',cat:'Dry Goods & Pasta'},
+     {n:'Soy sauce',q:'3 tbsp',cat:'Spices & Sauces'},
+     {n:'Oyster sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Honey',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Garlic',q:'4 cloves',cat:'Fruit & Veg'},
+     {n:'Five-spice powder',q:'½ tsp',cat:'Spices & Sauces'},
+     {n:'Broccoli',q:'1 head',cat:'Fruit & Veg'},
+     {n:'Rice',q:'for serving',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Score chicken thighs and coat in cornstarch; sear skin-side down 5 min until golden.','Flip, add minced garlic to the pan and cook 1 min.','Pour in soy sauce, oyster sauce and honey; coat chicken. Add five-spice.','Cover and cook on medium 10 min until cooked through.','Blanch broccoli alongside. Serve over rice drizzled with the glaze.']},
+  {id:13,emoji:'🥩',name:'Charsiu (BBQ Pork)',cuisine:'Chinese',time:'90 min',serves:4,
+   url:'https://tiffycooks.com/char-siu-pork-chinese-bbq-pork-air-fryer-and-easy/',
+   ingredients:[
+     {n:'Pork shoulder or belly',q:'600g',cat:'Meat & Fish'},
+     {n:'Lee Kum Kee Char Siu sauce',q:'4 tbsp',cat:'Spices & Sauces'},
+     {n:'Dark soy sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Shaoxing wine',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Garlic',q:'3 cloves',cat:'Fruit & Veg'},
+     {n:'Ginger',q:'3 slices',cat:'Fruit & Veg'},
+     {n:'Five-spice powder',q:'½ tsp',cat:'Spices & Sauces'},
+     {n:'Honey',q:'1 tbsp',cat:'Spices & Sauces'}
+   ],
+   steps:['Mix char siu sauce, dark soy, Shaoxing wine, minced garlic, ginger and five-spice.','Marinate pork for at least 2 hours (overnight is best).','Air fry or roast at 200°C for 25 min, turning once halfway.','Brush with honey for the last 5 min to caramelise.','Rest 5 min before slicing. Serve over rice or noodles.']},
+  {id:14,emoji:'🍖',name:'Braised Pork Belly',cuisine:'Chinese',time:'80 min',serves:4,
+   url:'https://redhousespice.com/red-cooked-pork-belly/',
+   ingredients:[
+     {n:'Pork belly',q:'600g',cat:'Meat & Fish'},
+     {n:'Shaoxing rice wine',q:'250ml',cat:'Spices & Sauces'},
+     {n:'Light soy sauce',q:'2 tbsp',cat:'Spices & Sauces'},
+     {n:'Dark soy sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Ginger',q:'5 slices',cat:'Fruit & Veg'},
+     {n:'Star anise',q:'2',cat:'Spices & Sauces'},
+     {n:'Bay leaves',q:'2',cat:'Spices & Sauces'},
+     {n:'Rock sugar',q:'20g',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Blanch pork belly chunks in boiling water 3 min; drain and pat dry.','Melt rock sugar in a little oil until amber caramel; add pork and toss to coat.','Add Shaoxing wine, both soy sauces, ginger, star anise, bay leaves and enough water to barely cover.','Bring to boil then simmer covered on low for 60–70 min until tender and glossy.','Remove lid; reduce sauce on high 5 min until sticky. Serve over rice.']},
+  {id:15,emoji:'🍗',name:'Soy Sauce Chicken Legs',cuisine:'Chinese',time:'60 min',serves:4,
+   ingredients:[
+     {n:'Chicken legs',q:'4',cat:'Meat & Fish'},
+     {n:'Dark soy sauce',q:'100ml total',cat:'Spices & Sauces'},
+     {n:'Light soy sauce',q:'50ml',cat:'Spices & Sauces'},
+     {n:'Shaoxing wine',q:'50ml',cat:'Spices & Sauces'},
+     {n:'Rock sugar',q:'40g',cat:'Dry Goods & Pasta'},
+     {n:'Spring onions',q:'2',cat:'Fruit & Veg'},
+     {n:'Ginger',q:'5 slices',cat:'Fruit & Veg'},
+     {n:'Shallots',q:'3 small',cat:'Fruit & Veg'},
+     {n:'Garlic',q:'2 bulbs',cat:'Fruit & Veg'},
+     {n:'Cinnamon stick',q:'1',cat:'Spices & Sauces'},
+     {n:'Cloves',q:'5',cat:'Spices & Sauces'},
+     {n:'Star anise',q:'1',cat:'Spices & Sauces'},
+     {n:'White pepper',q:'½ tsp',cat:'Spices & Sauces'},
+     {n:'Cornstarch',q:'2 tbsp',cat:'Dry Goods & Pasta'}
+   ],
+   steps:['Blanch chicken 30 sec; drain, pat dry, marinate in 4 tbsp dark soy and white pepper.','Caramelise rock sugar in oil; fry spring onions, ginger, garlic and shallots 3 min.','Add chicken skin-side down; sear 2 min. Pour in marinade, soy sauces, Shaoxing wine, 500ml water and whole spices.','Braise covered on low 35 min, turning halfway.','Remove chicken; strain sauce and thicken with cornstarch slurry. Pour over chicken.']},
+  {id:16,emoji:'🍲',name:'Ginger Scallion Chicken',cuisine:'Chinese',time:'30 min',serves:4,
+   ingredients:[
+     {n:'Chicken legs (bone-in)',q:'2 large',cat:'Meat & Fish'},
+     {n:'Red dates',q:'4',cat:'Dry Goods & Pasta'},
+     {n:'Ginger',q:'4 slices + 3 tbsp finely chopped',cat:'Fruit & Veg'},
+     {n:'Scallions',q:'3 tbsp finely chopped',cat:'Fruit & Veg'},
+     {n:'Soy sauce',q:'1 tbsp',cat:'Spices & Sauces'},
+     {n:'Sugar',q:'½ tsp',cat:'Dry Goods & Pasta'},
+     {n:'Neutral oil',q:'2 tbsp',cat:'Spices & Sauces'}
+   ],
+   steps:['Place chicken with red dates and ginger in a steamer; steam 16 min from when water boils.','Let chicken cool; shred into bite-sized pieces. Reserve the steaming broth.','Finely chop equal parts ginger and scallions; fry in hot oil until fragrant.','Add soy sauce, sugar, salt and a splash of reserved broth; stir together.','Pour hot ginger-scallion sauce over the shredded chicken and serve.']}
+];
+
+// Supermarket section config
+const SHOP_SECTIONS=[
+  {id:'Meat & Fish',    emoji:'🥩', label:'Meat & Fish'},
+  {id:'Fruit & Veg',   emoji:'🥦', label:'Fruit & Veg'},
+  {id:'Dairy & Eggs',  emoji:'🥛', label:'Dairy & Eggs'},
+  {id:'Dry Goods & Pasta', emoji:'🌾', label:'Dry Goods & Pasta'},
+  {id:'Tins & Jars',   emoji:'🥫', label:'Tins & Jars'},
+  {id:'Chilled & Deli',emoji:'❄️', label:'Chilled & Deli'},
+  {id:'Spices & Sauces',emoji:'🧂', label:'Spices & Sauces'},
+  {id:'Other',         emoji:'🛍', label:'Other'},
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+// shopItems managed by multi-list system below
+let localEvents=JSON.parse(localStorage.getItem('hub_events')||'null')||[];
+let externalEvents=[];
+let calDate=new Date(2026,2,1),selectedDay=null,currentRecipeId=null,activeCat='All',currentShopTab='pick';
+let dragStart=null,dragEnd=null,isDragging=false;
+let googleConnected=localStorage.getItem('hub_gcal_connected')==='1';
+let icalUrl=localStorage.getItem('hub_ical_url')||'';
+// Auto-reload saved Outlook feed on startup
+(async()=>{
+  const outlookUrl=localStorage.getItem('hub_outlook_url');
+  if(!outlookUrl)return;
+  const text=await fetchIcs(outlookUrl).catch(()=>null);
+  if(!text)return;
+  const parsed=parseIcs(text,'outlook');
+  externalEvents=externalEvents.filter(e=>e.src!=='outlook');
+  externalEvents.push(...parsed);
+})();
+
+// ═══════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  if(id==='calendar') renderCalendar();
+  if(id==='recipes') renderRecipes();
+  if(id==='weather') renderWeather();
+  if(id==='shopping'){renderListTabs();if(activeListId==='__overview__'){document.querySelector('.shop-tabs').style.display='none';document.getElementById('shop-pick').style.display='none';document.getElementById('shop-list').style.display='none';document.getElementById('shop-pick').classList.remove('active');document.getElementById('shop-list').classList.remove('active');document.getElementById('shop-overview-panel').style.display='block';renderShopOverview();}else{document.querySelector('.shop-tabs').style.display='';updateShopTabVisibility();updateSortDropdown();renderShoppingPicker();renderShopList();}}
+  if(id==='shopoverview'){renderShopOverview();}
+  if(id==='travel'){initTravel();fetchTflStatus();}
+  updateShopCount();
+}
+
+// ═══════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════
+function initHome(){
+  const now=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('home-date').innerHTML=`<strong>${now.getDate()} ${months[now.getMonth()]}</strong><br>${days[now.getDay()]}`;
+  document.getElementById('hw-today-num').textContent=now.getDate();
+  document.getElementById('hw-today-day').textContent=days[now.getDay()];
+  updateShopCount();
+  fetchWeatherPreview();
+  updateCalSyncButtons();
+  fetchTflHomeWidget();
+  updateStepDisplay();
+  tryLoadAppleHealthSteps();
+
+  // Detect if running as installed PWA (standalone) vs Safari
+  const isStandalone = window.navigator.standalone === true;
+  const pwaBanner = document.getElementById('pwa-banner');
+  if(isStandalone && pwaBanner){
+    // Running as home screen app — hide install banner
+    pwaBanner.style.display = 'none';
+  }
+}
+function updateShopCount(){
+  document.getElementById('hw-shop-count').textContent=shopItems.filter(i=>!i.checked).length;
+}
+
+// ═══════════════════════════════════════════════════════
+// WEATHER — Open-Meteo (no API key needed)
+// ═══════════════════════════════════════════════════════
+const WX_CODES={
+  0:{label:'Clear sky',e:'☀️'},1:{label:'Mainly clear',e:'🌤'},2:{label:'Partly cloudy',e:'⛅'},3:{label:'Overcast',e:'☁️'},
+  45:{label:'Foggy',e:'🌫'},48:{label:'Icy fog',e:'🌫'},51:{label:'Light drizzle',e:'🌦'},53:{label:'Drizzle',e:'🌦'},55:{label:'Heavy drizzle',e:'🌧'},
+  61:{label:'Light rain',e:'🌧'},63:{label:'Rain',e:'🌧'},65:{label:'Heavy rain',e:'🌧'},71:{label:'Light snow',e:'🌨'},73:{label:'Snow',e:'❄️'},75:{label:'Heavy snow',e:'❄️'},
+  80:{label:'Rain showers',e:'🌦'},81:{label:'Showers',e:'🌧'},82:{label:'Violent showers',e:'⛈'},95:{label:'Thunderstorm',e:'⛈'},96:{label:'Thunderstorm',e:'⛈'},99:{label:'Thunderstorm',e:'⛈'}
+};
+const WX_DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+async function fetchWeather(){
+  // Build URL with all params — Open-Meteo is free, no API key, full CORS support
+  const params=new URLSearchParams({
+    latitude:'51.5074',
+    longitude:'-0.1278',
+    current:'temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code',
+    hourly:'precipitation_probability',
+    daily:'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+    timezone:'Europe/London',
+    forecast_days:'7'
+  });
+  const url='https://api.open-meteo.com/v1/forecast?'+params.toString();
+  try{
+    const res=await fetch(url,{method:'GET',mode:'cors'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    return await res.json();
+  }catch(e){
+    console.error('Weather fetch error:',e);
+    // Fallback: try without mode:cors explicitly set
+    try{
+      const res2=await fetch(url);
+      if(!res2.ok)throw new Error('HTTP '+res2.status);
+      return await res2.json();
+    }catch(e2){
+      console.error('Weather fallback error:',e2);
+      return null;
+    }
+  }
+}
+
+async function renderWeather(){
+  const c=document.getElementById('weather-content');
+  c.innerHTML='<div class="weather-loading">Fetching live weather…</div>';
+  const data=await fetchWeather();
+  if(!data||!data.current){
+    c.innerHTML='<div class="weather-loading" style="line-height:1.9;font-size:13px">'
+      +'<div style="font-size:28px;margin-bottom:12px">⚠️</div>'
+      +'<strong style="color:var(--text);font-size:14px">Weather blocked by browser</strong><br><br>'
+      +'This happens when the file is opened directly.<br>'
+      +'You need to serve it over HTTP.<br><br>'
+      +'<strong style="color:var(--text)">Fix — open Terminal on your Mac and run:</strong><br>'
+      +'<code style="display:inline-block;margin-top:6px;background:var(--surface2);padding:5px 12px;border-radius:8px;font-size:12px;color:var(--accent)">python3 -m http.server 8080</code><br><br>'
+      +'Then open <span style="color:var(--accent2)">http://localhost:8080</span> in Safari on your Mac, or on your iPhone via your Mac\'s local IP (e.g. http://192.168.x.x:8080).'
+      +'</div>';
+    return;
+  }
+  const cur=data.current, daily=data.daily;
+  // API uses weather_code; fall back to weathercode for older responses
+  const code=cur.weather_code??cur.weathercode??0;
+  const wx=WX_CODES[code]||{label:'Unknown',e:'🌡'};
+  // precipitation_probability comes from hourly[0] since it's not a current field
+  const rainPct=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:
+                (daily&&daily.precipitation_probability_max)?daily.precipitation_probability_max[0]:'—';
+
+  c.innerHTML=`
+    <div class="weather-hero">
+      <div class="weather-bg"></div>
+      <div class="weather-content">
+        <span class="weather-emoji">${wx.e}</span>
+        <div class="weather-temp">${Math.round(cur.temperature_2m)}°C</div>
+        <div class="weather-desc">${wx.label}</div>
+        <div class="weather-loc">London · Feels like ${Math.round(cur.apparent_temperature)}°C</div>
+      </div>
+    </div>
+    <div class="weather-row">
+      <div class="weather-stat"><div class="weather-stat-icon">💧</div><div class="weather-stat-val">${cur.relative_humidity_2m??'—'}%</div><div class="weather-stat-lbl">Humidity</div></div>
+      <div class="weather-stat"><div class="weather-stat-icon">💨</div><div class="weather-stat-val">${Math.round(cur.wind_speed_10m??0)} km/h</div><div class="weather-stat-lbl">Wind</div></div>
+      <div class="weather-stat"><div class="weather-stat-icon">🌂</div><div class="weather-stat-val">${rainPct}%</div><div class="weather-stat-lbl">Rain</div></div>
+    </div>
+    <div class="card-label" style="margin-bottom:10px">7-Day Forecast</div>
+    <div class="forecast-row">
+      ${(daily.time||[]).map((d,i)=>{
+        const dt=new Date(d+'T12:00:00'), dayName=i===0?'TODAY':WX_DAYS[dt.getDay()];
+        const dcode=daily.weather_code?daily.weather_code[i]:daily.weathercode?.[i]??0;
+        const fwx=WX_CODES[dcode]||{e:'🌡'};
+        return`<div class="forecast-item"><div class="forecast-day">${dayName}</div><div class="forecast-icon">${fwx.e}</div><div class="forecast-hi">${Math.round(daily.temperature_2m_max[i])}°</div><div class="forecast-lo">${Math.round(daily.temperature_2m_min[i])}°</div></div>`;
+      }).join('')}
+    </div>`;
+  // update home widget
+  document.getElementById('hw-wx-icon').textContent=wx.e;
+  document.getElementById('hw-wx-temp').textContent=Math.round(cur.temperature_2m)+'°C';
+  document.getElementById('hw-wx-desc').textContent='London · '+wx.label;
+}
+
+async function fetchWeatherPreview(){
+  try{
+    const url='https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current=temperature_2m,weather_code&timezone=Europe%2FLondon';
+    const res=await fetch(url);
+    if(!res.ok)return;
+    const data=await res.json();
+    const code=data.current.weather_code??data.current.weathercode??0;
+    const wx=WX_CODES[code]||{e:'🌡',label:'—'};
+    document.getElementById('hw-wx-icon').textContent=wx.e;
+    document.getElementById('hw-wx-temp').textContent=Math.round(data.current.temperature_2m)+'°C';
+    document.getElementById('hw-wx-desc').textContent='London · '+wx.label;
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════════
+function allEvents(){return [...localEvents,...externalEvents];}
+
+function renderCalendar(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  const mNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-heading').textContent=mNames[m]+' '+y;
+  const firstDay=new Date(y,m,1).getDay(),daysInMonth=new Date(y,m+1,0).getDate(),today=new Date();
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  ['S','M','T','W','T','F','S'].forEach(d=>{const el=document.createElement('div');el.className='cal-day-label';el.textContent=d;grid.appendChild(el);});
+  const evDates=allEvents().map(e=>e.date);
+  const prev=new Date(y,m,0).getDate();
+  for(let i=firstDay-1;i>=0;i--){const el=document.createElement('div');el.className='cal-day other-month';el.textContent=prev-i;grid.appendChild(el);}
+  for(let d=1;d<=daysInMonth;d++){
+    const el=document.createElement('div');el.className='cal-day';el.textContent=d;
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    el.dataset.date=ds;
+    if(y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate())el.classList.add('today');
+    if(evDates.includes(ds))el.classList.add('has-event');
+    if(selectedDay===ds&&!dragStart)el.classList.add('selected');
+    // Drag range highlight
+    if(dragStart&&dragEnd){
+      const lo=dragStart<dragEnd?dragStart:dragEnd;
+      const hi=dragStart<dragEnd?dragEnd:dragStart;
+      if(ds>=lo&&ds<=hi)el.classList.add('in-range');
+      if(ds===lo)el.classList.add('range-start');
+      if(ds===hi)el.classList.add('range-end');
+    }
+    // Mouse drag
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault();
+      dragStart=ds;dragEnd=ds;isDragging=true;
+      renderCalendarHighlights();
+    });
+    el.addEventListener('mouseenter',()=>{
+      if(isDragging){dragEnd=ds;renderCalendarHighlights();}
+    });
+    // Touch drag
+    el.addEventListener('touchstart',e=>{
+      dragStart=ds;dragEnd=ds;isDragging=true;
+      renderCalendarHighlights();
+    },{passive:true});
+    grid.appendChild(el);
+  }
+  renderEvents();
+}
+
+function renderCalendarHighlights(){
+  // Lightweight re-highlight without full re-render
+  document.querySelectorAll('.cal-day').forEach(el=>{
+    const ds=el.dataset.date;if(!ds)return;
+    el.classList.remove('in-range','range-start','range-end','selected');
+    if(dragStart&&dragEnd){
+      const lo=dragStart<dragEnd?dragStart:dragEnd;
+      const hi=dragStart<dragEnd?dragEnd:dragStart;
+      if(ds>=lo&&ds<=hi)el.classList.add('in-range');
+      if(ds===lo)el.classList.add('range-start');
+      if(ds===hi)el.classList.add('range-end');
+    }
+  });
+}
+
+// Global drag-end handlers (mouse + touch)
+function finishDrag(){
+  if(!isDragging)return;
+  isDragging=false;
+  const lo=dragStart<dragEnd?dragStart:dragEnd;
+  const hi=dragStart<dragEnd?dragEnd:dragStart;
+  if(lo===hi){
+    selectedDay=lo;dragStart=null;dragEnd=null;
+    renderCalendar();
+  } else {
+    openAddEventWithRange(lo,hi);
+    dragStart=null;dragEnd=null;
+  }
+}
+document.addEventListener('mouseup',finishDrag);
+document.addEventListener('touchend',e=>{
+  if(!isDragging)return;
+  // on touchend, figure out which day finger is over
+  const touch=e.changedTouches[0];
+  const el=document.elementFromPoint(touch.clientX,touch.clientY);
+  if(el&&el.dataset&&el.dataset.date)dragEnd=el.dataset.date;
+  finishDrag();
+});
+document.addEventListener('touchmove',e=>{
+  if(!isDragging)return;
+  const touch=e.touches[0];
+  const el=document.elementFromPoint(touch.clientX,touch.clientY);
+  if(el&&el.dataset&&el.dataset.date&&el.dataset.date!==dragEnd){
+    dragEnd=el.dataset.date;
+    renderCalendarHighlights();
+  }
+},{passive:true});
+
+function openAddEventWithRange(start,end){
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-date').value=start;
+  document.getElementById('ev-end-date').value=end;
+  document.getElementById('ev-time').value='';
+  document.getElementById('ev-end-time').value='';
+  document.getElementById('ev-color').value='#7c6fff';
+  document.querySelectorAll('input[name="ev-col"]').forEach(r=>r.checked=r.value==='#7c6fff');
+  document.getElementById('ev-date-range-label').textContent=start===end?start:start+' → '+end;
+  document.getElementById('add-event-modal').classList.add('open');
+}
+function renderEvents(){
+  const list=document.getElementById('event-list');
+  list.querySelectorAll('.event-item').forEach(e=>e.remove());
+  const lbl=document.getElementById('event-list-label');
+  const filtered=selectedDay?allEvents().filter(e=>e.date===selectedDay):allEvents().sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  lbl.textContent=selectedDay?'Events on '+selectedDay:'Upcoming Events';
+  if(!filtered.length){lbl.textContent=selectedDay?'No events this day':'No upcoming events';return;}
+  filtered.forEach(ev=>{
+    const el=document.createElement('div');el.className='event-item';
+    const srcLabel=ev.src==='google'?'Google Cal':ev.src==='ical'?'iCloud':ev.src==='local'?'':'';
+    const timeStr = ev.time ? ev.time + (ev.endTime?' – '+ev.endTime:'') : '';
+    const dateStr = selectedDay ? '' : ev.date;
+    el.innerHTML=`<div class="event-dot" style="background:${ev.color}"></div><div class="event-info"><div class="event-title">${ev.title}</div><div class="event-time">${timeStr?'<span style="color:var(--accent);font-weight:600">'+timeStr+'</span>'+(dateStr?' · ':'')+dateStr:dateStr}</div>${srcLabel?`<div class="event-src">${srcLabel}</div>`:''}</div>`;
+    list.appendChild(el);
+  });
+}
+function changeMonth(d){calDate.setMonth(calDate.getMonth()+d);renderCalendar();}
+function addEvent(){
+  const date=selectedDay||new Date().toISOString().slice(0,10);
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-date').value=date;
+  document.getElementById('ev-end-date').value=date;
+  document.getElementById('ev-time').value='';
+  document.getElementById('ev-end-time').value='';
+  document.getElementById('ev-color').value='#7c6fff';
+  document.querySelectorAll('input[name="ev-col"]').forEach(r=>r.checked=r.value==='#7c6fff');
+  document.getElementById('ev-date-range-label').textContent=date;
+  document.getElementById('add-event-modal').classList.add('open');
+}
+function updateRangeLabel(){
+  const s=document.getElementById('ev-date').value;
+  const e=document.getElementById('ev-end-date').value;
+  const lbl=document.getElementById('ev-date-range-label');
+  if(!lbl)return;
+  if(!s&&!e){lbl.textContent='';return;}
+  lbl.textContent=(!e||s===e)?s:s+' → '+e;
+}
+function saveNewEvent(){
+  const title=document.getElementById('ev-title').value.trim();
+  if(!title){showToast('Please enter a title');return;}
+  const start=document.getElementById('ev-date').value;
+  const end=document.getElementById('ev-end-date').value||start;
+  const time=document.getElementById('ev-time').value||'';
+  const endTime=document.getElementById('ev-end-time').value||'';
+  const color=document.getElementById('ev-color').value||'#7c6fff';
+  // Generate one event per day in range
+  const lo=start<=end?start:end, hi=start<=end?end:start;
+  let cur=new Date(lo+'T12:00:00');
+  const hiD=new Date(hi+'T12:00:00');
+  let count=0;
+  while(cur<=hiD){
+    const ds=cur.toISOString().slice(0,10);
+    localEvents.push({date:ds,title,time,endTime,color,src:'local'});
+    cur.setDate(cur.getDate()+1);count++;
+  }
+  localStorage.setItem('hub_events',JSON.stringify(localEvents));
+  closeModalById('add-event-modal');
+  dragStart=null;dragEnd=null;
+  renderCalendar();
+  showToast(count>1?'Added event across '+count+' days':'Event added!');
+}
+function deleteEvent(idx){
+  if(!confirm('Delete this event?'))return;
+  localEvents.splice(idx,1);
+  localStorage.setItem('hub_events',JSON.stringify(localEvents));
+  renderCalendar();
+  showToast('Event deleted');
+}
+
+// ── Google Calendar ──────────────────────────────────────
+function openCalPickerModal(){
+  updateCalSyncButtons();
+  document.getElementById('cal-picker-modal').classList.add('open');
+}
+function updateCalSyncButtons(){
+  const outlookUrl=localStorage.getItem('hub_outlook_url');
+  // Update picker badges
+  const bg=document.getElementById('badge-gcal');
+  const bi=document.getElementById('badge-ical');
+  const bo=document.getElementById('badge-outlook');
+  if(bg)bg.style.display=googleConnected?'block':'none';
+  if(bi)bi.style.display=icalUrl?'block':'none';
+  if(bo)bo.style.display=outlookUrl?'block':'none';
+  // Update connected badges row
+  const row=document.getElementById('cal-connected-badges');
+  if(!row)return;
+  row.innerHTML='';
+  const badge=(label,color)=>{
+    const b=document.createElement('div');
+    b.style.cssText='padding:5px 10px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(111,255,158,.1);border:1px solid rgba(111,255,158,.25);color:var(--green)';
+    b.textContent='✓ '+label;
+    row.appendChild(b);
+  };
+  if(googleConnected)badge('Google');
+  if(icalUrl)badge('iCloud');
+  if(outlookUrl)badge('Outlook');
+}
+function openGoogleCalModal(){document.getElementById('gcal-modal').classList.add('open');}
+function connectGoogle(){
+  const clientId=document.getElementById('gcal-client-id-input').value.trim();
+  if(!clientId){showToast('Please enter a Client ID');return;}
+  localStorage.setItem('hub_gcal_client_id',clientId);
+  // Load Google API
+  const s=document.createElement('script');
+  s.src='https://apis.google.com/js/api.js';
+  s.onload=()=>initGoogleAuth(clientId);
+  document.head.appendChild(s);
+  closeModalById('gcal-modal');
+  showToast('Loading Google Calendar…');
+}
+function initGoogleAuth(clientId){
+  gapi.load('client:auth2',async()=>{
+    try{
+      await gapi.client.init({clientId,scope:'https://www.googleapis.com/auth/calendar.readonly',discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']});
+      const authInstance=gapi.auth2.getAuthInstance();
+      if(!authInstance.isSignedIn.get()){await authInstance.signIn();}
+      await loadGoogleEvents();
+      googleConnected=true;
+      localStorage.setItem('hub_gcal_connected','1');
+      updateCalSyncButtons();
+      renderCalendar();
+      showToast('Google Calendar connected!');
+    }catch(e){showToast('Google sign-in failed: '+e.error);}
+  });
+}
+async function loadGoogleEvents(){
+  try{
+    const now=new Date().toISOString();
+    const end=new Date(Date.now()+30*24*60*60*1000).toISOString();
+    const res=await gapi.client.calendar.events.list({calendarId:'primary',timeMin:now,timeMax:end,singleEvents:true,orderBy:'startTime',maxResults:50});
+    const colors=['#7c9fff','#ff9e7c','#9eff7c','#ff7cce','#7cffef'];
+    externalEvents=externalEvents.filter(e=>e.src!=='google');
+    (res.result.items||[]).forEach((ev,i)=>{
+      const start=ev.start.date||ev.start.dateTime?.slice(0,10);
+      const time=ev.start.dateTime?ev.start.dateTime.slice(11,16):'';
+      if(start)externalEvents.push({date:start,title:ev.summary||'(no title)',time,color:colors[i%colors.length],src:'google'});
+    });
+  }catch(e){console.error(e);}
+}
+
+// ── iCloud Calendar (.ics) ────────────────────────────────
+function openOutlookModal(){
+  document.getElementById('outlook-modal').classList.add('open');
+  const saved=localStorage.getItem('hub_outlook_url');
+  if(saved)document.getElementById('outlook-url-input').value=saved;
+}
+async function fetchIcs(url){
+  // Try multiple CORS proxies in order
+  const proxies=[
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(url),
+    'https://corsproxy.io/?'+encodeURIComponent(url),
+    'https://cors-anywhere.herokuapp.com/'+url,
+  ];
+  for(const proxy of proxies){
+    try{
+      const res=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+      if(!res.ok)continue;
+      const text=await res.text();
+      if(text.includes('BEGIN:VCALENDAR'))return text;
+    }catch(e){console.warn('Proxy failed:',proxy,e.message);}
+  }
+  return null;
+}
+
+async function connectOutlook(){
+  const url=document.getElementById('outlook-url-input').value.trim();
+  if(!url){showToast('Please enter an ICS URL');return;}
+  closeModalById('outlook-modal');
+  showToast('Connecting to Outlook…');
+  const text=await fetchIcs(url);
+  if(!text){
+    showToast('❌ Could not reach Outlook. See calendar for help.');
+    // Show inline error on calendar screen
+    showIcsError('outlook');
+    return;
+  }
+  const parsed=parseIcs(text,'outlook');
+  externalEvents=externalEvents.filter(e=>e.src!=='outlook');
+  externalEvents.push(...parsed);
+  localStorage.setItem('hub_outlook_url',url);
+  document.getElementById('btn-outlook').classList.add('connected');
+  document.getElementById('outlook-label').textContent='Outlook ✓';
+  renderCalendar();
+  showToast('✅ Loaded '+parsed.length+' Outlook events');
+}
+
+function showIcsError(type){
+  const label=type==='outlook'?'Outlook':'iCloud';
+  const container=document.getElementById('ics-error-banner');
+  if(!container)return;
+  container.style.display='block';
+  container.innerHTML='<strong style="color:var(--text)">⚠️ '+label+' calendar blocked by browser CORS policy</strong><br><br>'
+    +'Your browser prevents fetching from '+label+' directly. The easiest fix:<br><br>'
+    +'1. In Terminal run: <code style="background:var(--surface2);padding:2px 8px;border-radius:6px;font-size:11px">npm install -g local-cors-proxy</code><br>'
+    +'2. Then run: <code style="background:var(--surface2);padding:2px 8px;border-radius:6px;font-size:11px">lcp --proxyUrl https://outlook.live.com --port 8010</code><br>'
+    +'3. Replace <code style="background:var(--surface2);padding:2px 8px;border-radius:6px;font-size:11px">https://outlook.live.com</code> in your ICS link with <code style="background:var(--surface2);padding:2px 8px;border-radius:6px;font-size:11px">http://localhost:8010/proxy</code>';
+}
+
+function openICalModal(){document.getElementById('ical-modal').classList.add('open');}
+async function connectIcal(){
+  const url=document.getElementById('ical-url-input').value.trim();
+  if(!url){showToast('Please enter an .ics URL');return;}
+  closeModalById('ical-modal');
+  showToast('Loading iCloud calendar…');
+  try{
+    const text=await fetchIcs(url);
+    if(!text)throw new Error('all proxies failed');
+    const parsed=parseIcs(text,'ical');
+    externalEvents=externalEvents.filter(e=>e.src!=='ical');
+    externalEvents.push(...parsed);
+    icalUrl=url;localStorage.setItem('hub_ical_url',url);
+    document.getElementById('btn-ical').classList.add('connected');
+    document.getElementById('ical-label').textContent='iCloud ✓';
+    renderCalendar();
+    showToast(`Loaded ${parsed.length} iCloud events`);
+  }catch(e){showToast('Could not load iCloud calendar. Check the URL.');}
+}
+function parseIcs(text,src){
+  src=src||'ical';
+  const events=[];const colorMap={'ical':'#c8a96e','outlook':'#7c9fff'};
+  const baseColor=colorMap[src]||'#c8a96e';
+  const colors=[baseColor,'#7cffef','#ff9e7c'];
+  const vevents=text.split('BEGIN:VEVENT').slice(1);
+  vevents.forEach((block,i)=>{
+    const get=key=>{const m=block.match(new RegExp(key+'[^:]*:([^\r\n]+)'));return m?m[1].trim():''};
+    const dtstart=get('DTSTART');
+    if(!dtstart)return;
+    const date=dtstart.length>=8?dtstart.slice(0,4)+'-'+dtstart.slice(4,6)+'-'+dtstart.slice(6,8):'';
+    const time=dtstart.length>8?dtstart.slice(9,11)+':'+dtstart.slice(11,13):'';
+    const title=get('SUMMARY').replace(/\\n/g,' ')||'(no title)';
+    if(date)events.push({date,title,time,color:colors[i%colors.length],src:src});
+  });
+  return events;
+}
+
+// ═══════════════════════════════════════════════════════
+// RECIPES
+// ═══════════════════════════════════════════════════════
+const BG=['linear-gradient(135deg,#1a2e1a,#0d1f0d)','linear-gradient(135deg,#2e1a1a,#1f0d0d)','linear-gradient(135deg,#1a1a2e,#0d0d1f)','linear-gradient(135deg,#2e2a1a,#1f1a0d)','linear-gradient(135deg,#1a2e2e,#0d1f1f)','linear-gradient(135deg,#2e1a2e,#1f0d1f)'];
+
+function renderRecipes(filter=''){
+  const list=document.getElementById('recipe-list');list.innerHTML='';
+  RECIPES.filter(r=>(activeCat==='All'||r.cuisine===activeCat)&&(!filter||r.name.toLowerCase().includes(filter.toLowerCase())))
+    .forEach((r,i)=>{
+      const el=document.createElement('div');el.className='recipe-card';
+      const isAdded=r.ingredients.every(ing=>shopItems.find(s=>s.name.toLowerCase()===ing.n.toLowerCase()));
+      el.innerHTML=`<div class="recipe-thumb" style="background:${BG[i%BG.length]}">${r.emoji}</div>
+        <div class="recipe-body">
+          <div class="recipe-title">${r.name}</div>
+          <div class="recipe-meta"><span>⏱ ${r.time}</span><span>🍽 ${r.serves} servings</span><span>${r.cuisine}</span></div>
+          <button class="add-to-cart-btn${isAdded?' added':''}" id="cb-${r.id}" onclick="event.stopPropagation();addRecipeToCart(${r.id})">${isAdded?'✓ In list':'🛒 Add to list'}</button>
+        </div>`;
+      el.onclick=()=>openDetail(r.id);
+      list.appendChild(el);
+    });
+}
+function filterCat(el,cat){document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');activeCat=cat;renderRecipes();}
+function filterRecipes(q){renderRecipes(q);}
+
+function openDetail(id){
+  const r=RECIPES.find(x=>x.id===id);if(!r)return;
+  currentRecipeId=id;
+  document.getElementById('detail-title').textContent=r.name;
+  document.getElementById('detail-emoji').textContent=r.emoji;
+  // Source link
+  const linkRow=document.getElementById('detail-link-row');
+  linkRow.innerHTML=r.url?`<a class="recipe-link" href="${r.url}" target="_blank" rel="noopener">🔗 <span>View original recipe</span><span style="margin-left:auto;opacity:.5">↗</span></a>`:'';
+  document.getElementById('detail-ingredients').innerHTML=r.ingredients.map(i=>`<div class="ingredient-row"><span class="ingredient-name">${i.n}</span><span class="ingredient-qty">${i.q}</span></div>`).join('');
+  document.getElementById('detail-steps').innerHTML=r.steps.map((s,i)=>`<div class="step-row"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></div>`).join('');
+  document.getElementById('recipe-detail').classList.add('open');
+}
+function closeDetail(){document.getElementById('recipe-detail').classList.remove('open');}
+function addCurrentToCart(){addRecipeToCart(currentRecipeId);closeDetail();}
+
+// ═══════════════════════════════════════════════════════
+// SHOPPING
+// ═══════════════════════════════════════════════════════
+function getCategoryForItem(name){
+  // fuzzy match: check if item name contains any known ingredient mapped to a category
+  const lc=name.toLowerCase();
+  // Meat & Fish
+  if(/chicken|pork|beef|bacon|chorizo|salmon|spam|sausage|pancetta|mince/.test(lc))return'Meat & Fish';
+  // Fruit & Veg
+  if(/onion|garlic|ginger|scallion|spring onion|aubergine|eggplant|chilli|basil|coriander|spinach|broccoli|carrot|potato|avocado|cucumber|tomato|lime|lemon|shallot|thai|date|herb|veg/.test(lc))return'Fruit & Veg';
+  // Dairy & Eggs
+  if(/egg|cream|butter|parmesan|pecorino|cheese|milk|mayo|kewpie/.test(lc))return'Dairy & Eggs';
+  // Dry Goods & Pasta
+  if(/rice|pasta|noodle|rigatoni|linguine|fusilli|flour|breadcrumb|panko|cornstarch|cornflour|sugar|sesame seed|red date/.test(lc))return'Dry Goods & Pasta';
+  // Tins & Jars
+  if(/stock|tomato paste|canned|tin|jar/.test(lc))return'Tins & Jars';
+  // Chilled & Deli
+  if(/kimchi|tofu|miso/.test(lc))return'Chilled & Deli';
+  // Spices & Sauces
+  if(/sauce|oil|soy|oyster|fish sauce|mirin|vinegar|wine|paste|spice|pepper|turmeric|anise|cinnamon|clove|bay|honey|gochujang|doubanjiang|chilli oil|sesame oil|five.spice|char siu|katsu|stock cube/.test(lc))return'Spices & Sauces';
+  return'Other';
+}
+
+function addRecipeToCart(id){
+  const r=RECIPES.find(x=>x.id===id);if(!r)return;
+  let added=0;
+  r.ingredients.forEach(ing=>{
+    if(!shopItems.find(s=>s.name.toLowerCase()===ing.n.toLowerCase())){
+      shopItems.push({id:Date.now()+Math.random(),name:ing.n,qty:ing.q,cat:ing.cat||getCategoryForItem(ing.n),source:r.name,checked:false});
+      added++;
+    }
+  });
+  saveShop();updateShopCount();
+  showToast(added>0?`Added ${added} items from ${r.name}`:'All items already in list');
+  const btn=document.getElementById('cb-'+id);
+  if(btn){btn.textContent='✓ In list';btn.classList.add('added');}
+}
+
+// ═══════════════════════════════════════════════════════
+// MULTI-LIST SHOPPING
+// ═══════════════════════════════════════════════════════
+// Lists stored as: { id, name, emoji, items:[] }
+function loadLists(){
+  const raw=localStorage.getItem('hub_lists');
+  if(raw)return JSON.parse(raw);
+  // Default: one Food list seeded with any existing shopItems
+  return [{id:'food',name:'Food',emoji:'🛒',items:JSON.parse(localStorage.getItem('hub_shop')||'[]')}];
+}
+function saveLists(){localStorage.setItem('hub_lists',JSON.stringify(allLists));}
+function saveShop(){
+  // keep legacy hub_shop in sync with active list
+  localStorage.setItem('hub_shop',JSON.stringify(shopItems));
+  const l=allLists.find(x=>x.id===activeListId);
+  if(l)l.items=shopItems;
+  saveLists();
+}
+
+let allLists=loadLists();
+let activeListId='__overview__';
+let shopItems=allLists[0].items;
+// sortMode: 'type' | 'recipe' | 'alpha'
+// Food list defaults to 'type', all other lists default to 'alpha'
+function getDefaultSort(listId){ return listId==='food'?'type':'alpha'; }
+let sortMode=getDefaultSort('food');
+
+function renderListTabs(){
+  const row=document.getElementById('list-tabs-row');
+  if(!row)return;
+  row.innerHTML='';
+  // Overview tab always first
+  const ovBtn=document.createElement('button');
+  ovBtn.style.cssText='flex-shrink:0;padding:7px 14px;border-radius:99px;border:1px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:5px;background:var(--surface);color:var(--muted)';
+  ovBtn.innerHTML='🗂 Overview';
+  if(activeListId==='__overview__'){ovBtn.style.background='var(--accent)';ovBtn.style.color='#0a0a12';ovBtn.style.borderColor='var(--accent)';}
+  ovBtn.onclick=()=>switchList('__overview__');
+  row.appendChild(ovBtn);
+  allLists.forEach(l=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='flex-shrink:0;padding:7px 14px;border-radius:99px;border:1px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap;transition:all .15s;background:var(--surface);color:var(--muted);display:flex;align-items:center;gap:5px';
+    btn.innerHTML=l.emoji+' '+l.name;
+    if(l.id===activeListId){btn.style.background='var(--accent)';btn.style.color='#0a0a12';btn.style.borderColor='var(--accent)';}
+    btn.onclick=()=>switchList(l.id);
+    let pressTimer;
+    btn.addEventListener('pointerdown',()=>{pressTimer=setTimeout(()=>openEditListModal(l.id),600);});
+    btn.addEventListener('pointerup',()=>clearTimeout(pressTimer));
+    row.appendChild(btn);
+  });
+}
+
+function switchList(id){
+  activeListId=id;
+  renderListTabs();
+  if(id==='__overview__'){
+    document.querySelector('.shop-tabs').style.display='none';
+    document.getElementById('shop-pick').style.display='none';
+    document.getElementById('shop-list').style.display='none';
+    document.getElementById('shop-pick').classList.remove('active');
+    document.getElementById('shop-list').classList.remove('active');
+    document.getElementById('shop-overview-panel').style.display='block';
+    renderShopOverview();
+    return;
+  }
+  // Hide overview, restore normal tabs
+  document.getElementById('shop-overview-panel').style.display='none';
+  document.getElementById('shop-pick').style.display='';
+  document.getElementById('shop-list').style.display='';
+  document.querySelector('.shop-tabs').style.display='';
+  const l=allLists.find(x=>x.id===id);
+  shopItems=l?l.items:[];
+  sortMode=getDefaultSort(id);
+  updateSortDropdown();
+  updateShopTabVisibility();
+  renderShoppingPicker();
+  renderShopList();
+  updateShopCount();
+}
+
+function openNewListModal(){
+  document.getElementById('new-list-modal').classList.add('open');
+  document.getElementById('new-list-name').value='';
+  document.getElementById('new-list-emoji').value='📝';
+}
+function createNewList(){
+  const name=document.getElementById('new-list-name').value.trim();
+  const emoji=document.getElementById('new-list-emoji').value.trim()||'📝';
+  if(!name){showToast('Enter a list name');return;}
+  const id='list_'+Date.now();
+  allLists.push({id,name,emoji,items:[]});
+  saveLists();
+  closeModalById('new-list-modal');
+  switchList(id);
+  showToast('Created "'+name+'" list');
+}
+function openEditListModal(id){
+  const l=allLists.find(x=>x.id===id);if(!l)return;
+  document.getElementById('edit-list-modal').classList.add('open');
+  document.getElementById('edit-list-id').value=id;
+  document.getElementById('edit-list-name').value=l.name;
+  document.getElementById('edit-list-emoji').value=l.emoji;
+}
+function saveEditList(){
+  const id=document.getElementById('edit-list-id').value;
+  const l=allLists.find(x=>x.id===id);if(!l)return;
+  l.name=document.getElementById('edit-list-name').value.trim()||l.name;
+  l.emoji=document.getElementById('edit-list-emoji').value.trim()||l.emoji;
+  saveLists();closeModalById('edit-list-modal');renderListTabs();
+}
+function deleteList(){
+  const id=document.getElementById('edit-list-id').value;
+  if(allLists.length<=1){showToast("Can't delete last list");return;}
+  if(!confirm('Delete this list and all its items?'))return;
+  allLists=allLists.filter(x=>x.id!==id);
+  saveLists();closeModalById('edit-list-modal');
+  switchList(allLists[0].id);
+}
+
+function setSortMode(val){
+  sortMode=val;
+  renderShopList();
+}
+function updateSortDropdown(){
+  const sel=document.getElementById('sort-select');
+  if(sel)sel.value=sortMode;
+}
+
+function addRecipeToCart(id){
+  const r=RECIPES.find(x=>x.id===id);if(!r)return;
+  // Check if ALL ingredients already in list → toggle remove
+  const allPresent=r.ingredients.every(ing=>shopItems.find(s=>s.name.toLowerCase()===ing.n.toLowerCase()&&!s.checked));
+  if(allPresent){
+    // Remove all this recipe's ingredients
+    r.ingredients.forEach(ing=>{
+      const idx=shopItems.findIndex(s=>s.name.toLowerCase()===ing.n.toLowerCase());
+      if(idx>-1)shopItems.splice(idx,1);
+    });
+    saveShop();updateShopCount();
+    showToast('Removed '+r.name+' from list');
+  } else {
+    let added=0;
+    r.ingredients.forEach(ing=>{
+      if(!shopItems.find(s=>s.name.toLowerCase()===ing.n.toLowerCase())){
+        shopItems.push({id:Date.now()+Math.random(),name:ing.n,qty:ing.q,cat:ing.cat||getCategoryForItem(ing.n),source:r.name,checked:false});
+        added++;
+      }
+    });
+    saveShop();updateShopCount();
+    showToast(added>0?'Added '+added+' items from '+r.name:'All items already in list');
+  }
+  const btn=document.getElementById('cb-'+id);
+  const allNow=r.ingredients.every(ing=>shopItems.find(s=>s.name.toLowerCase()===ing.n.toLowerCase()));
+  if(btn){btn.textContent=allNow?'✓ In list':'🛒 Add to list';btn.className='add-to-cart-btn'+(allNow?' added':'');}
+}
+
+function renderShoppingPicker(){
+  const p=document.getElementById('recipe-picker');if(!p)return;p.innerHTML='';
+  RECIPES.forEach(r=>{
+    const allAdded=r.ingredients.every(ing=>shopItems.find(s=>s.name.toLowerCase()===ing.n.toLowerCase()));
+    const el=document.createElement('div');
+    el.className='recipe-pick-card'+(allAdded?' selected':'');
+    el.innerHTML='<div class="recipe-pick-emoji">'+r.emoji+'</div><div class="recipe-pick-name">'+r.name+'</div>'+(allAdded?'<div class="check-badge">✓</div>':'');
+    el.onclick=()=>{addRecipeToCart(r.id);setTimeout(()=>{renderShoppingPicker();renderShopList();},80);};
+    p.appendChild(el);
+  });
+}
+
+function renderShopList(){
+  const c=document.getElementById('shop-items-container');if(!c)return;c.innerHTML='';
+  if(!shopItems.length){
+    c.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px;font-size:14px">No items yet.<br>Pick recipes above to add ingredients.</div>';
+    return;
+  }
+
+  if(sortMode==='type'){
+    // Group by supermarket section type
+    const groups={};
+    SHOP_SECTIONS.forEach(s=>{groups[s.id]=[];});
+    shopItems.forEach(item=>{
+      const cat=item.cat||getCategoryForItem(item.name);
+      (groups[cat]||groups['Other']).push(item);
+    });
+    SHOP_SECTIONS.forEach(sec=>{
+      const items=groups[sec.id];if(!items||!items.length)return;
+      appendSectionHeader(c,sec.emoji+' '+sec.label,items);
+      items.forEach(item=>appendShopItem(c,item));
+    });
+
+  } else if(sortMode==='recipe'){
+    const groups={};const order=[];
+    shopItems.forEach(item=>{
+      const src=item.source||'Manual';
+      if(!groups[src]){groups[src]=[];order.push(src);}
+      groups[src].push(item);
+    });
+    order.forEach(src=>{
+      appendSectionHeader(c,'🍳 '+src,groups[src]);
+      groups[src].forEach(item=>appendShopItem(c,item));
+    });
+
+  } else { // alpha — flat alphabetical list
+    const sorted=[...shopItems].sort((a,b)=>a.name.localeCompare(b.name));
+    sorted.forEach(item=>appendShopItem(c,item));
+  }
+}
+
+function appendSectionHeader(c,label,items){
+  const hdr=document.createElement('div');hdr.className='shop-section-header';
+  const remaining=items.filter(i=>!i.checked).length;
+  hdr.innerHTML='<span class="shop-section-name">'+label+'</span><span class="shop-section-count">'+remaining+'/'+items.length+'</span>';
+  c.appendChild(hdr);
+}
+
+function appendShopItem(c,item){
+  const el=document.createElement('div');
+  el.className='shop-item'+(item.checked?' checked':'');
+  el.innerHTML='<div class="shop-check">'+(item.checked?'✓':'')+'</div>'
+    +'<div style="flex:1"><div class="shop-item-text">'+item.name+'</div>'
+    +(item.qty?'<div class="shop-item-qty">'+item.qty+'</div>':'')+'</div>'
+    +'<button class="shop-delete-btn" onclick="event.stopPropagation();deleteShopItem(\''+item.id+'\')" title="Remove">✕</button>';
+  el.querySelector('.shop-check').addEventListener('click',e=>{
+    e.stopPropagation();
+    item.checked=!item.checked;saveShop();updateShopCount();renderShopList();renderShoppingPicker();
+  });
+  el.onclick=()=>{item.checked=!item.checked;saveShop();updateShopCount();renderShopList();renderShoppingPicker();};
+  c.appendChild(el);
+}
+
+function deleteShopItem(id){
+  shopItems=shopItems.filter(i=>String(i.id)!==String(id));
+  saveShop();updateShopCount();renderShopList();renderShoppingPicker();
+}
+
+function switchShopTab(el,tab){
+  document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.shop-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('shop-'+tab).classList.add('active');
+  currentShopTab=tab;
+  if(tab==='list')renderShopList();else renderShoppingPicker();
+}
+function goToList(){switchShopTab(document.querySelectorAll('.shop-tab')[1],'list');}
+function updateShopTabVisibility(){
+  const recipeTab=document.querySelector('.shop-tab');
+  const pickSection=document.getElementById('shop-pick');
+  const isFood=activeListId==='food';
+  if(recipeTab)recipeTab.style.display=isFood?'':'none';
+  if(!isFood){
+    // force to list tab for non-food lists
+    document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.shop-section').forEach(s=>s.classList.remove('active'));
+    const listTab=document.querySelectorAll('.shop-tab')[1];
+    if(listTab)listTab.classList.add('active');
+    const listSection=document.getElementById('shop-list');
+    if(listSection)listSection.classList.add('active');
+    currentShopTab='list';
+  }
+}
+
+function addCustomItem(){
+  const input=document.getElementById('custom-item-input');
+  if(!input.value.trim())return;
+  const name=input.value.trim();
+  shopItems.push({id:Date.now(),name,qty:'',cat:getCategoryForItem(name),source:'Manual',checked:false});
+  input.value='';saveShop();updateShopCount();renderShopList();
+}
+function clearChecked(){
+  shopItems=shopItems.filter(i=>!i.checked);saveShop();updateShopCount();renderShopList();renderShoppingPicker();showToast('Cleared checked items');
+}
+function clearAll(){
+  if(!confirm('Clear all items from this list?'))return;
+  shopItems=[];saveShop();updateShopCount();renderShopList();renderShoppingPicker();showToast('List cleared');
+}
+
+
+
+// ═══════════════════════════════════════════════════════
+// TRAVEL
+// ═══════════════════════════════════════════════════════
+let travelAddresses = JSON.parse(localStorage.getItem('hub_travel') || 'null') || {
+  home: 'W2 1DN, London',
+  work: '8 Canada Square, London E14 5HQ'
+};
+
+function saveTravelAddresses(){
+  localStorage.setItem('hub_travel', JSON.stringify(travelAddresses));
+}
+
+
+function initTravel(){
+  document.getElementById('addr-home-display').textContent = travelAddresses.home;
+  document.getElementById('addr-work-display').textContent = travelAddresses.work;
+}
+
+function openRoute(direction){ openInGoogleMaps(direction); }
+
+function openInGoogleMaps(direction){
+  const origin = direction==='towork' ? travelAddresses.home : travelAddresses.work;
+  const dest   = direction==='towork' ? travelAddresses.work : travelAddresses.home;
+  window.open('https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent(dest)+'&travelmode=transit','_blank');
+}
+
+function openInCitymapper(direction){
+  const origin = direction==='towork' ? travelAddresses.home : travelAddresses.work;
+  const dest   = direction==='towork' ? travelAddresses.work : travelAddresses.home;
+  window.open('https://citymapper.com/directions?startaddress='+encodeURIComponent(origin)+'&endaddress='+encodeURIComponent(dest),'_blank');
+}
+
+// TfL line colours
+const TFL_LINES = [
+  {id:'bakerloo',        name:'Bakerloo',          color:'#B36305'},
+  {id:'central',         name:'Central',            color:'#E32017'},
+  {id:'circle',          name:'Circle',             color:'#FFD300'},
+  {id:'district',        name:'District',           color:'#00782A'},
+  {id:'hammersmith-city',name:'Hammersmith & City', color:'#F3A9BB'},
+  {id:'jubilee',         name:'Jubilee',            color:'#A0A5A9'},
+  {id:'metropolitan',    name:'Metropolitan',       color:'#9B0056'},
+  {id:'northern',        name:'Northern',           color:'#000000'},
+  {id:'piccadilly',      name:'Piccadilly',         color:'#003688'},
+  {id:'victoria',        name:'Victoria',           color:'#0098D4'},
+  {id:'waterloo-city',   name:'Waterloo & City',    color:'#95CDBA'},
+  {id:'elizabeth',       name:'Elizabeth line',     color:'#6950A1'},
+  {id:'dlr',             name:'DLR',                color:'#00A4A7'},
+  {id:'overground',      name:'Overground',         color:'#EE7C0E'},
+];
+
+async function fetchTflStatus(){
+  const container = document.getElementById('tfl-status-container');
+  if(!container) return;
+  try{
+    const ids = TFL_LINES.map(l=>l.id).join(',');
+    const res = await fetch('https://api.tfl.gov.uk/Line/'+ids+'/Status');
+    if(!res.ok) throw new Error('TfL API error');
+    const data = await res.json();
+    data.sort((a,b)=>{
+      const sA = a.lineStatuses?.[0]?.statusSeverity ?? 10;
+      const sB = b.lineStatuses?.[0]?.statusSeverity ?? 10;
+      return sA - sB;
+    });
+    container.innerHTML = '';
+
+
+    data.forEach(line => {
+      const meta = TFL_LINES.find(l=>l.id===line.id);
+      if(!meta) return;
+      const status = line.lineStatuses?.[0];
+      const statusText = status?.statusSeverityDescription || 'Unknown';
+      const severity = status?.statusSeverity;
+      const reason = (status?.reason||'').replace(/^[^:]+:\s*/,'').trim();
+      const cls = severity===10?'good':severity>=6?'minor':'severe';
+      const isPinned = pinnedTflLines.includes(line.id);
+
+      const row = document.createElement('div');
+      row.className = 'tfl-line';
+      row.style.cursor = reason ? 'pointer' : 'default';
+      row.innerHTML =
+        '<div class="tfl-dot" style="background:'+meta.color+'"></div>'
+        + '<div style="flex:1">'
+        +   '<div class="tfl-name">'+meta.name+'</div>'
+        +   (reason ? '<div style="font-size:10px;color:var(--muted);margin-top:1px">Tap for details</div>' : '')
+        + '</div>'
+        + '<div style="display:flex;align-items:center;gap:10px">'
+        +   '<div class="tfl-status '+cls+'">'+statusText+'</div>'
+        +   '<div class="tfl-pin-toggle'+(isPinned?' on':'')+'" id="travel-pin-'+line.id+'" style="width:36px;height:20px;flex-shrink:0"></div>'
+        + '</div>';
+
+      // Pin toggle — syncs instantly with home widget
+      row.querySelector('.tfl-pin-toggle').addEventListener('click', e => {
+        e.stopPropagation();
+        const toggle = document.getElementById('travel-pin-'+line.id);
+        const nowPinned = toggle.classList.toggle('on');
+        if(nowPinned){
+          if(!pinnedTflLines.includes(line.id)) pinnedTflLines.push(line.id);
+        } else {
+          pinnedTflLines = pinnedTflLines.filter(x => x !== line.id);
+        }
+        localStorage.setItem('hub_tfl_pins', JSON.stringify(pinnedTflLines));
+        fetchTflHomeWidget();
+        showToast(nowPinned ? '📌 Added to home widget' : 'Removed from home widget');
+      });
+
+      // Tap row for delay reason
+      if(reason){
+        row.addEventListener('click', ()=>{
+          document.getElementById('tfl-reason-modal').classList.add('open');
+          document.getElementById('tfl-reason-title').textContent = meta.name;
+          document.getElementById('tfl-reason-title').style.color = meta.color;
+          document.getElementById('tfl-reason-status').textContent = statusText;
+          document.getElementById('tfl-reason-body').textContent = reason;
+        });
+      }
+      container.appendChild(row);
+    });
+  }catch(e){
+    container.innerHTML = '<div class="travel-loading">Could not load TfL status. Check your connection.</div>';
+    console.error('TfL error:', e);
+  }
+}
+
+
+
+// ═══════════════════════════════════════════════════════
+// TfL HOME WIDGET
+// ═══════════════════════════════════════════════════════
+let pinnedTflLines = JSON.parse(localStorage.getItem('hub_tfl_pins') || 'null') || ['elizabeth','jubilee','bakerloo'];
+let tflStatusCache = {};
+
+function openTflPinModal(){
+  const list = document.getElementById('tfl-pin-list');
+  list.innerHTML = '';
+  TFL_LINES.forEach(line => {
+    const pinned = pinnedTflLines.includes(line.id);
+    const row = document.createElement('div');
+    row.className = 'tfl-pin-row';
+    row.innerHTML = '<div class="tfl-dot" style="background:'+line.color+';width:12px;height:12px;border-radius:50%;flex-shrink:0"></div>'
+      + '<div style="flex:1;font-size:14px;font-weight:500">'+line.name+'</div>'
+      + '<div class="tfl-pin-toggle'+(pinned?' on':'')+'" id="toggle-'+line.id+'"></div>';
+    row.querySelector('.tfl-pin-toggle').addEventListener('click', function(){ this.classList.toggle('on'); });
+    list.appendChild(row);
+  });
+  document.getElementById('tfl-pin-modal').classList.add('open');
+}
+
+function saveTflPins(){
+  pinnedTflLines = TFL_LINES.filter(l => {
+    const el = document.getElementById('toggle-'+l.id);
+    return el && el.classList.contains('on');
+  }).map(l => l.id);
+  localStorage.setItem('hub_tfl_pins', JSON.stringify(pinnedTflLines));
+  closeModalById('tfl-pin-modal');
+  fetchTflHomeWidget();
+  showToast('Lines updated!');
+}
+
+async function fetchTflHomeWidget(){
+  const container = document.getElementById('tfl-home-lines');
+  if(!container) return;
+  if(!pinnedTflLines.length){
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:4px 0">No lines pinned. Tap ⚙ Manage to add lines.</div>';
+    return;
+  }
+  container.innerHTML = '<div style="color:var(--muted);font-size:12px">Updating…</div>';
+  try{
+    const ids = pinnedTflLines.join(',');
+    const res = await fetch('https://api.tfl.gov.uk/Line/'+ids+'/Status');
+    if(!res.ok) throw new Error('TfL error');
+    const data = await res.json();
+    // Cache results for travel page too
+    data.forEach(l => tflStatusCache[l.id] = l);
+    console.log('TfL lines returned:', data.map(l=>l.id));
+    renderTflHomeWidget(data);
+  }catch(e){
+    console.error('TfL error:', e);
+    container.innerHTML = '<div style="color:var(--muted);font-size:12px">Could not load TfL status.</div>';
+  }
+}
+
+function renderTflHomeWidget(data){
+  const container = document.getElementById('tfl-home-lines');
+  if(!container) return;
+  container.innerHTML = '';
+  // Sort pinned lines worst first
+  const sorted = pinnedTflLines
+    .map(id => ({
+      line: data.find(l=>l.id===id||l.id.replace('-','')===id.replace('-','')),
+      meta: TFL_LINES.find(l=>l.id===id)
+    }))
+    .filter(x=>x.line&&x.meta)
+    .sort((a,b)=>{
+      const sA = a.line.lineStatuses?.[0]?.statusSeverity??10;
+      const sB = b.line.lineStatuses?.[0]?.statusSeverity??10;
+      return sA-sB;
+    });
+  sorted.forEach(({line,meta})=>{
+    const status = line.lineStatuses?.[0];
+    const statusText = status?.statusSeverityDescription||'Unknown';
+    const severity = status?.statusSeverity;
+    const reason = (status?.reason||'').replace(/^[^:]+: /,'').trim();
+    const cls = severity===10?'good':severity>=6?'minor':'severe';
+    const hasReason = reason.length>0;
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'border-bottom:1px solid rgba(255,255,255,.05)';
+
+    const row = document.createElement('div');
+    row.className = 'tfl-widget-row';
+    row.style.cssText = 'border-bottom:none'+(hasReason?';cursor:pointer':'');
+    row.innerHTML = '<div class="tfl-widget-dot" style="background:'+meta.color+'"></div>'
+      +'<div class="tfl-widget-name">'+meta.name+'</div>'
+      +'<div style="display:flex;align-items:center;gap:5px">'
+      +'<div class="tfl-widget-status '+cls+'">'+statusText+'</div>'
+      +(hasReason?'<div class="tfl-chev" style="font-size:10px;color:var(--muted);transition:transform .2s">▾</div>':'')
+      +'</div>';
+    wrap.appendChild(row);
+
+    if(hasReason){
+      const detail = document.createElement('div');
+      detail.style.cssText = 'display:none;font-size:12px;color:var(--muted);line-height:1.6;padding:4px 4px 10px 22px';
+      detail.textContent = reason;
+      wrap.appendChild(detail);
+      row.addEventListener('click',()=>{
+        const open = detail.style.display!=='none';
+        detail.style.display = open?'none':'block';
+        const chev = row.querySelector('.tfl-chev');
+        if(chev) chev.style.transform = open?'':'rotate(180deg)';
+      });
+    }
+    container.appendChild(wrap);
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════
+// SHOP OVERVIEW
+// ═══════════════════════════════════════════════════════
+function renderShopOverview(){
+  // Show overview panel, hide others
+  const panel = document.getElementById('shop-overview-panel');
+  if(!panel) return;
+  panel.style.display = 'block';
+  panel.innerHTML = '';
+  const freshLists = loadLists().filter(l=>l.items&&l.items.length>0);
+
+  if(freshLists.length===0){
+    panel.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 0;font-size:14px;line-height:2">Your lists are empty.<br>Add items via Food or other lists.</div>';
+    return;
+  }
+
+  freshLists.forEach(list=>{
+    // Section header
+    const hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;align-items:center;gap:8px;margin:20px 0 8px;padding-bottom:8px;border-bottom:2px solid var(--border)';
+    hdr.innerHTML='<span style="font-size:16px">'+list.emoji+'</span>'
+      +'<span style="font-size:15px;font-weight:700">'+list.name+'</span>'
+      +'<span style="margin-left:auto;font-size:11px;color:var(--muted);font-weight:600">'+list.items.filter(i=>!i.checked).length+' left</span>';
+    panel.appendChild(hdr);
+
+    // Items: unchecked first then alpha
+    const sorted=[...list.items].sort((a,b)=>{
+      if(a.checked!==b.checked) return a.checked?1:-1;
+      return a.name.localeCompare(b.name);
+    });
+    sorted.forEach(item=>{
+      const el=document.createElement('div');
+      el.style.cssText='display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer';
+      el.innerHTML='<div style="width:20px;height:20px;border-radius:6px;border:2px solid '+(item.checked?'var(--accent)':'var(--border)')+';background:'+(item.checked?'var(--accent)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s">'
+        +(item.checked?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4l3 3 6-6" stroke="#0a0a12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')
+        +'</div>'
+        +'<div style="flex:1;font-size:14px;'+(item.checked?'color:var(--muted);text-decoration:line-through':'color:var(--text)')+'">'+item.name+'</div>'
+        +(item.qty?'<div style="font-size:12px;color:var(--muted)">'+item.qty+'</div>':'');
+      el.addEventListener('click',()=>{
+        const l=allLists.find(x=>x.id===list.id);
+        if(l){const it=l.items.find(i=>i.name===item.name);if(it)it.checked=!it.checked;}
+        saveLists();updateShopCount();renderShopOverview();
+      });
+      panel.appendChild(el);
+    });
+  });
+
+  // Footer
+  const total=freshLists.reduce((s,l)=>s+l.items.filter(i=>!i.checked).length,0);
+  const foot=document.createElement('div');
+  foot.style.cssText='margin-top:20px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;text-align:center;font-size:13px;color:var(--muted)';
+  foot.innerHTML='<strong style="color:var(--text)">'+total+'</strong> item'+(total!==1?'s':'')+' remaining across all lists';
+  panel.appendChild(foot);
+}
+
+// ═══════════════════════════════════════════════════════
+// STEP COUNTER + AVATAR
+// ═══════════════════════════════════════════════════════
+let stepData = JSON.parse(localStorage.getItem('hub_steps') || '{}');
+
+function getTodayKey(){ return new Date().toISOString().slice(0,10); }
+function getTodaySteps(){ return stepData[getTodayKey()] || 0; }
+
+// Try to read from Apple Health via DeviceMotion / Web API
+// Apple Health step data is only accessible via native apps or shortcuts
+// Best approach for PWA: use a Shortcut automation to write to localStorage
+async function tryLoadAppleHealthSteps(){
+  checkStepsFromURL();
+  // Also load from cache
+  const today = getTodayKey();
+  const cached = localStorage.getItem('hub_health_steps_today');
+  const cachedDate = localStorage.getItem('hub_health_steps_date');
+  if(cached && cachedDate === today){
+    const val = parseInt(cached);
+    if(!isNaN(val)){ saveSteps(val); updateStepDisplay(); }
+  }
+}
+
+function checkStepsFromURL(){
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSteps = urlParams.get('steps');
+  if(urlSteps !== null){
+    const val = parseInt(urlSteps);
+    if(!isNaN(val) && val >= 0){
+      const today = getTodayKey();
+      saveSteps(val);
+      localStorage.setItem('hub_health_steps_today', val);
+      localStorage.setItem('hub_health_steps_date', today);
+      updateStepDisplay();
+      window.history.replaceState({}, '', window.location.pathname);
+      showToast('✅ Steps synced from Apple Health!');
+    }
+  }
+}
+
+// Fire whenever Safari navigates to the URL (even if page was already open)
+window.addEventListener('pageshow', checkStepsFromURL);
+window.addEventListener('popstate', checkStepsFromURL);
+
+function saveSteps(val){
+  stepData[getTodayKey()] = val;
+  // keep only last 30 days
+  const keys = Object.keys(stepData).sort();
+  if(keys.length > 30) keys.slice(0, keys.length-30).forEach(k=>delete stepData[k]);
+  localStorage.setItem('hub_steps', JSON.stringify(stepData));
+}
+
+function getAvatarMood(steps){
+  if(steps >= 10000) return 'ecstatic';
+  if(steps >= 7500)  return 'happy';
+  if(steps >= 5000)  return 'neutral';
+  if(steps >= 2500)  return 'sad';
+  return 'upset';
+}
+
+function renderAvatar(steps){
+  const mood = getAvatarMood(steps);
+  const moodEl = document.getElementById('step-mood-label');
+  const avatarEl = document.getElementById('step-avatar');
+  if(!avatarEl) return;
+
+  const moods = {
+    ecstatic:{ msg:'You crushed it today! 🔥', color:'#6fff9e',
+      brows:['M32 40 Q38 36 44 40','M56 40 Q62 36 68 40'],
+      mouth:'M38 62 Q50 74 62 62', eyes:[5,5], cheeks:.5 },
+    happy:   { msg:'Great job, keep it up! 💪', color:'#c8a96e',
+      brows:['M32 41 Q38 38 44 41','M56 41 Q62 38 68 41'],
+      mouth:'M40 63 Q50 71 60 63', eyes:[5,5], cheeks:.4 },
+    neutral: { msg:'Not bad, a little more! 🚶', color:'#7ccfff',
+      brows:['M32 42 Q38 40 44 42','M56 42 Q62 40 68 42'],
+      mouth:'M40 64 Q50 68 60 64', eyes:[5,5], cheeks:.2 },
+    sad:     { msg:'Come on, get moving! 😕', color:'#ffb347',
+      brows:['M32 43 Q38 40 44 43','M56 43 Q62 40 68 43'],
+      mouth:'M40 68 Q50 62 60 68', eyes:[5,5], cheeks:.15 },
+    upset:   { msg:'Barely any steps today 😩', color:'#ff6f6f',
+      brows:['M32 45 Q38 40 44 45','M56 45 Q62 40 68 45'],
+      mouth:'M40 70 Q50 63 60 70', eyes:[4.5,4.5], cheeks:.08 },
+  };
+  const m = moods[mood];
+
+  // Update mouth
+  const mouth = document.getElementById('mouth');
+  if(mouth) mouth.setAttribute('d', m.mouth);
+  // Update brows
+  const bl = document.getElementById('brow-l'), br = document.getElementById('brow-r');
+  if(bl) bl.setAttribute('d', m.brows[0]);
+  if(br) br.setAttribute('d', m.brows[1]);
+  // Update cheeks opacity
+  const cl = document.getElementById('cheek-l'), cr = document.getElementById('cheek-r');
+  if(cl) cl.setAttribute('fill', 'rgba(255,150,120,'+m.cheeks+')');
+  if(cr) cr.setAttribute('fill', 'rgba(255,150,120,'+m.cheeks+')');
+  // Bounce animation for ecstatic
+  if(avatarEl){
+    avatarEl.style.animation = mood==='ecstatic' ? 'bounce 0.5s infinite alternate' : 'none';
+  }
+  if(moodEl){ moodEl.textContent = m.msg; moodEl.style.color = m.color; }
+}
+
+function openHealthSetup(){
+  const url = window.location.origin + window.location.pathname + '?steps=[Calculation Result]';
+  const el = document.getElementById('shortcut-url-display');
+  if(el) el.textContent = url;
+  document.getElementById('health-setup-modal').classList.add('open');
+}
+
+function updateStepDisplay(){
+  const steps = getTodaySteps();
+  const el = document.getElementById('step-count-val');
+  if(el) el.textContent = steps.toLocaleString();
+  const pct = Math.min(steps/10000*100, 100);
+  const bar = document.getElementById('step-progress-bar');
+  if(bar) bar.style.width = pct+'%';
+  renderAvatar(steps);
+  // Hide setup button once steps are being tracked
+  const setupBtn = document.getElementById('health-setup-btn');
+  if(setupBtn) setupBtn.style.display = steps > 0 ? 'none' : '';
+}
+
+function logSteps(){
+  document.getElementById('step-input-modal').classList.add('open');
+  document.getElementById('step-input-val').value = getTodaySteps() || '';
+}
+
+function saveStepInput(){
+  const val = parseInt(document.getElementById('step-input-val').value) || 0;
+  saveSteps(val);
+  updateStepDisplay();
+  closeModalById('step-input-modal');
+  showToast('Steps updated!');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════
+function closeModal(e,id){if(e.target.id===id)closeModalById(id);}
+function closeModalById(id){document.getElementById(id).classList.remove('open');}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+// Set nav height CSS variable so screens can scroll past it
+(function(){
+  function setNavHeight(){
+    const nav = document.querySelector('nav');
+    if(nav) document.documentElement.style.setProperty('--nav-h', nav.offsetHeight+'px');
+  }
+  setNavHeight();
+  window.addEventListener('resize', setNavHeight);
+})();
+initHome();
+renderRecipes();
+renderListTabs();
+initTravel();
+
+</script>
+</body>
+</html>
