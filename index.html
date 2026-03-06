@@ -220,9 +220,9 @@
     .add-input-row input::placeholder{color:var(--muted)}
     .add-input-row button{padding:11px 16px;background:var(--accent);color:#0a0a12;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
     /* MODAL */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;align-items:flex-end;padding:0 14px calc(var(--safe-bottom)+14px)}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;align-items:flex-end;justify-content:center;padding:0 14px calc(var(--safe-bottom)+14px)}
     .modal-overlay.open{display:flex}
-    .modal-sheet{width:100%;max-width:430px;margin:0 auto;background:var(--surface);border-radius:24px;padding:28px 24px 32px;border:1px solid var(--border);box-sizing:border-box;max-height:90dvh;overflow-y:auto;animation:sheetUp .3s cubic-bezier(.22,1,.36,1)}
+    .modal-sheet{width:100%;max-width:480px;background:var(--surface);border-radius:24px 24px 16px 16px;padding:28px 24px 32px;border:1px solid var(--border);box-sizing:border-box;max-height:88dvh;overflow-y:auto;animation:sheetUp .3s cubic-bezier(.22,1,.36,1);touch-action:pan-y}
     @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
     .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:-8px auto 24px}
     .modal-title{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:10px}
@@ -1894,6 +1894,24 @@ function saveTravelAddresses(){
   localStorage.setItem('hub_travel', JSON.stringify(travelAddresses));
 }
 
+function openEditAddress(type){
+  document.getElementById('edit-addr-type').value = type;
+  document.getElementById('edit-addr-title').textContent = type === 'home' ? 'Edit Home Address' : 'Edit Work Address';
+  document.getElementById('edit-addr-input').value = type === 'home' ? travelAddresses.home : travelAddresses.work;
+  document.getElementById('edit-address-modal').classList.add('open');
+}
+
+function saveAddress(){
+  const type = document.getElementById('edit-addr-type').value;
+  const val = document.getElementById('edit-addr-input').value.trim();
+  if(!val) return;
+  travelAddresses[type] = val;
+  saveTravelAddresses();
+  document.getElementById('addr-'+type+'-display').textContent = val;
+  closeModalById('edit-address-modal');
+  showToast(type === 'home' ? '🏠 Home address updated!' : '🏢 Work address updated!');
+}
+
 
 function initTravel(){
   document.getElementById('addr-home-display').textContent = travelAddresses.home;
@@ -2226,9 +2244,11 @@ function checkStepsFromURL(){
   // Home address
   const homeAddr = p.get('home');
   if(homeAddr){
-    localStorage.setItem('hub_addr_home', decodeURIComponent(homeAddr));
+    const homeVal = decodeURIComponent(homeAddr);
+    travelAddresses.home = homeVal;
+    saveTravelAddresses();
     const el = document.getElementById('addr-home-display');
-    if(el) el.textContent = decodeURIComponent(homeAddr);
+    if(el) el.textContent = homeVal;
     showToast('🏠 Home address saved!');
     changed = true;
   }
@@ -2236,9 +2256,11 @@ function checkStepsFromURL(){
   // Work address
   const workAddr = p.get('work');
   if(workAddr){
-    localStorage.setItem('hub_addr_work', decodeURIComponent(workAddr));
+    const workVal = decodeURIComponent(workAddr);
+    travelAddresses.work = workVal;
+    saveTravelAddresses();
     const el = document.getElementById('addr-work-display');
-    if(el) el.textContent = decodeURIComponent(workAddr);
+    if(el) el.textContent = workVal;
     showToast('🏢 Work address saved!');
     changed = true;
   }
