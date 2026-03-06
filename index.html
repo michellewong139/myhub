@@ -14,7 +14,7 @@
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;user-select:none}
     #app{display:flex;flex-direction:column;height:100dvh;width:100%;position:relative}
-    .screen{display:none;flex:1;overflow-y:auto;padding:calc(var(--safe-top)+16px) 18px calc(var(--nav-h, 80px) + var(--safe-bottom) + 120px);-webkit-overflow-scrolling:touch;animation:fadeUp .3s ease;max-width:600px;margin:0 auto;width:100%;box-sizing:border-box}
+    .screen{display:none;flex:1;overflow-y:auto;padding:calc(var(--safe-top)+32px) 20px calc(var(--nav-h, 80px) + var(--safe-bottom) + 120px);-webkit-overflow-scrolling:touch;animation:fadeUp .3s ease;max-width:600px;margin:0 auto;width:100%;box-sizing:border-box}
     .screen.active{display:block}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     nav{position:fixed;bottom:0;left:0;right:0;width:100%;background:rgba(19,19,31,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding-bottom:calc(var(--safe-bottom)+4px);padding-top:8px;z-index:100}
@@ -247,37 +247,68 @@
     <div><div class="page-sub" style="margin:0 0 4px">Good morning</div><div class="greeting">Your <em>Hub</em></div></div>
     <div class="date-badge" id="home-date"></div>
   </div>
-  <div class="info-banner blue">
-    <div class="info-banner-icon">⚡</div>
-    <div><strong>Add to iPhone Home Screen</strong>Open in Safari → tap Share → "Add to Home Screen"</div>
-  </div>
+
 
   <!-- Steps + Avatar Widget (TOP) -->
   <div id="step-widget" style="background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:18px 20px;margin-bottom:16px;position:relative;overflow:hidden">
     <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(200,169,110,.12);filter:blur(20px)"></div>
     <div style="display:flex;align-items:center;gap:16px">
       <!-- Memoji SVG avatar -->
-      <div id="step-avatar" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;position:relative;transition:all .4s">
-        <svg id="avatar-svg" viewBox="0 0 100 100" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
-          <!-- Head -->
-          <circle cx="50" cy="52" r="36" fill="#FDDBB4"/>
-          <!-- Hair -->
-          <ellipse cx="50" cy="22" rx="30" ry="16" fill="#3B2314"/>
-          <rect x="20" y="18" width="60" height="20" rx="10" fill="#3B2314"/>
-          <!-- Eyes -->
-          <circle id="eye-l" cx="38" cy="50" r="5" fill="#2C1A0E"/>
-          <circle id="eye-r" cx="62" cy="50" r="5" fill="#2C1A0E"/>
-          <!-- Eye shine -->
-          <circle cx="40" cy="48" r="1.5" fill="white"/>
-          <circle cx="64" cy="48" r="1.5" fill="white"/>
+      <div id="step-avatar" style="width:88px;height:120px;flex-shrink:0;position:relative;transition:all .4s">
+        <svg id="avatar-svg" viewBox="0 0 100 140" width="88" height="120" xmlns="http://www.w3.org/2000/svg">
+          <!-- Shadow -->
+          <ellipse cx="50" cy="137" rx="18" ry="4" fill="rgba(0,0,0,0.15)"/>
+          <!-- Legs -->
+          <rect id="leg-l" x="35" y="104" width="13" height="30" rx="6.5" fill="#6B9FE8"/>
+          <rect id="leg-r" x="52" y="104" width="13" height="30" rx="6.5" fill="#6B9FE8"/>
+          <!-- Shoes -->
+          <ellipse cx="41" cy="134" rx="10" ry="5.5" fill="#3B2314"/>
+          <ellipse cx="58" cy="134" rx="10" ry="5.5" fill="#3B2314"/>
+          <ellipse cx="44" cy="132" rx="5" ry="3" fill="#5C3D2E"/>
+          <ellipse cx="61" cy="132" rx="5" ry="3" fill="#5C3D2E"/>
+          <!-- Body / Hoodie -->
+          <rect x="26" y="70" width="48" height="38" rx="16" fill="#7C6FFF"/>
+          <!-- Hoodie pocket -->
+          <rect x="38" y="92" width="24" height="12" rx="6" fill="rgba(0,0,0,0.15)"/>
+          <!-- Arms relaxed -->
+          <rect id="arm-l" x="10" y="72" width="20" height="11" rx="5.5" fill="#FDDBB4"/>
+          <rect id="arm-r" x="70" y="72" width="20" height="11" rx="5.5" fill="#FDDBB4"/>
+          <!-- Hands -->
+          <circle cx="14" cy="83" r="6" fill="#FDDBB4"/>
+          <circle cx="86" cy="83" r="6" fill="#FDDBB4"/>
+          <!-- Neck -->
+          <rect x="43" y="60" width="14" height="14" rx="5" fill="#FDDBB4"/>
+          <!-- Head — big round cute -->
+          <circle cx="50" cy="46" r="32" fill="#FDDBB4"/>
+          <!-- Hair — fluffy top knot style -->
+          <ellipse cx="50" cy="18" rx="28" ry="17" fill="#2C1A0E"/>
+          <ellipse cx="50" cy="22" rx="22" ry="12" fill="#3B2314"/>
+          <!-- Ear left -->
+          <circle cx="20" cy="46" r="8" fill="#F5C9A0"/>
+          <circle cx="20" cy="46" r="5" fill="#F0B090"/>
+          <!-- Ear right -->
+          <circle cx="80" cy="46" r="8" fill="#F5C9A0"/>
+          <circle cx="80" cy="46" r="5" fill="#F0B090"/>
+          <!-- Big cute eyes -->
+          <circle id="eye-l" cx="38" cy="44" r="8" fill="white"/>
+          <circle id="eye-r" cx="62" cy="44" r="8" fill="white"/>
+          <circle cx="38" cy="44" r="5.5" fill="#2C1A0E"/>
+          <circle cx="62" cy="44" r="5.5" fill="#2C1A0E"/>
+          <!-- Eye sparkles -->
+          <circle cx="40" cy="41" r="2" fill="white"/>
+          <circle cx="64" cy="41" r="2" fill="white"/>
+          <circle cx="35" cy="46" r="1" fill="white"/>
+          <circle cx="59" cy="46" r="1" fill="white"/>
           <!-- Eyebrows -->
-          <path id="brow-l" d="M32 42 Q38 39 44 42" stroke="#3B2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <path id="brow-r" d="M56 42 Q62 39 68 42" stroke="#3B2314" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path id="brow-l" d="M30 33 Q38 29 46 33" stroke="#3B2314" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path id="brow-r" d="M54 33 Q62 29 70 33" stroke="#3B2314" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <!-- Cute nose -->
+          <ellipse cx="50" cy="52" rx="3" ry="2" fill="rgba(180,100,80,0.3)"/>
           <!-- Mouth -->
-          <path id="mouth" d="M40 64 Q50 70 60 64" stroke="#C47A5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <!-- Cheeks -->
-          <circle id="cheek-l" cx="30" cy="60" r="7" fill="rgba(255,150,120,0.3)"/>
-          <circle id="cheek-r" cx="70" cy="60" r="7" fill="rgba(255,150,120,0.3)"/>
+          <path id="mouth" d="M41 60 Q50 67 59 60" stroke="#D4785A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Rosy cheeks -->
+          <circle id="cheek-l" cx="26" cy="56" r="8" fill="rgba(255,140,120,0.35)"/>
+          <circle id="cheek-r" cx="74" cy="56" r="8" fill="rgba(255,140,120,0.35)"/>
         </svg>
       </div>
       <div style="flex:1">
@@ -291,7 +322,7 @@
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:4px">Goal: 10,000 steps</div>
       </div>
-      <button onclick="logSteps()" style="flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
       <div style="font-size:11px;color:var(--muted)">🍎 Apple Health sync</div>
@@ -393,7 +424,7 @@
     <div class="travel-addr-icon">🏠</div>
     <div class="travel-addr-info">
       <div class="travel-addr-label">Home</div>
-      <div class="travel-addr-value" id="addr-home-display">W2 1DN</div>
+      <div class="travel-addr-value" id="addr-home-display">—</div>
     </div>
     <div class="travel-edit-icon">✎</div>
   </div>
@@ -401,7 +432,7 @@
     <div class="travel-addr-icon">🏢</div>
     <div class="travel-addr-info">
       <div class="travel-addr-label">Work</div>
-      <div class="travel-addr-value" id="addr-work-display">8 Canada Square, London</div>
+      <div class="travel-addr-value" id="addr-work-display">—</div>
     </div>
     <div class="travel-edit-icon">✎</div>
   </div>
@@ -1062,13 +1093,7 @@ function initHome(){
   updateStepDisplay();
   tryLoadAppleHealthSteps();
 
-  // Detect if running as installed PWA (standalone) vs Safari
-  const isStandalone = window.navigator.standalone === true;
-  const pwaBanner = document.getElementById('pwa-banner');
-  if(isStandalone && pwaBanner){
-    // Running as home screen app — hide install banner
-    pwaBanner.style.display = 'none';
-  }
+
 }
 function updateShopCount(){
   document.getElementById('hw-shop-count').textContent=shopItems.filter(i=>!i.checked).length;
@@ -2238,26 +2263,31 @@ function renderAvatar(steps){
 
   const moods = {
     ecstatic:{ msg:'You crushed it today! 🔥', color:'#6fff9e',
-      brows:['M32 40 Q38 36 44 40','M56 40 Q62 36 68 40'],
-      mouth:'M38 62 Q50 74 62 62', eyes:[5,5], cheeks:.5 },
+      brows:['M30 29 Q38 24 46 29','M54 29 Q62 24 70 29'],
+      mouth:'M39 62 Q50 74 61 62', cheeks:.55 },
     happy:   { msg:'Great job, keep it up! 💪', color:'#c8a96e',
-      brows:['M32 41 Q38 38 44 41','M56 41 Q62 38 68 41'],
-      mouth:'M40 63 Q50 71 60 63', eyes:[5,5], cheeks:.4 },
+      brows:['M30 31 Q38 27 46 31','M54 31 Q62 27 70 31'],
+      mouth:'M41 61 Q50 69 59 61', cheeks:.45 },
     neutral: { msg:'Not bad, a little more! 🚶', color:'#7ccfff',
-      brows:['M32 42 Q38 40 44 42','M56 42 Q62 40 68 42'],
-      mouth:'M40 64 Q50 68 60 64', eyes:[5,5], cheeks:.2 },
+      brows:['M30 33 Q38 29 46 33','M54 33 Q62 29 70 33'],
+      mouth:'M41 61 Q50 65 59 61', cheeks:.25 },
     sad:     { msg:'Come on, get moving! 😕', color:'#ffb347',
-      brows:['M32 43 Q38 40 44 43','M56 43 Q62 40 68 43'],
-      mouth:'M40 68 Q50 62 60 68', eyes:[5,5], cheeks:.15 },
+      brows:['M30 35 Q38 31 46 35','M54 35 Q62 31 70 35'],
+      mouth:'M41 65 Q50 59 59 65', cheeks:.15 },
     upset:   { msg:'Barely any steps today 😩', color:'#ff6f6f',
-      brows:['M32 45 Q38 40 44 45','M56 45 Q62 40 68 45'],
-      mouth:'M40 70 Q50 63 60 70', eyes:[4.5,4.5], cheeks:.08 },
+      brows:['M30 37 Q38 31 46 37','M54 37 Q62 31 70 37'],
+      mouth:'M41 67 Q50 60 59 67', cheeks:.08 },
   };
   const m = moods[mood];
 
   // Update mouth
   const mouth = document.getElementById('mouth');
   if(mouth) mouth.setAttribute('d', m.mouth);
+  // Animate arms on ecstatic
+  const armL = document.getElementById('arm-l');
+  const armR = document.getElementById('arm-r');
+  if(armL && m.armL){ armL.setAttribute('d', m.armL); armL.setAttribute('width',''); }
+  if(armR && m.armR){ armR.setAttribute('d', m.armR); armR.setAttribute('width',''); }
   // Update brows
   const bl = document.getElementById('brow-l'), br = document.getElementById('brow-r');
   if(bl) bl.setAttribute('d', m.brows[0]);
