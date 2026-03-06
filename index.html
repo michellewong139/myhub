@@ -252,63 +252,42 @@
   <!-- Steps + Avatar Widget (TOP) -->
   <div id="step-widget" style="background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:18px 20px;margin-bottom:16px;position:relative;overflow:hidden">
     <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(200,169,110,.12);filter:blur(20px)"></div>
-    <div style="display:flex;align-items:center;gap:16px">
-      <!-- Memoji SVG avatar -->
-      <div id="step-avatar" style="width:88px;height:120px;flex-shrink:0;position:relative;transition:all .4s">
-        <svg id="avatar-svg" viewBox="0 0 100 140" width="88" height="120" xmlns="http://www.w3.org/2000/svg">
-          <!-- Shadow -->
-          <ellipse cx="50" cy="137" rx="18" ry="4" fill="rgba(0,0,0,0.15)"/>
-          <!-- Legs -->
-          <rect id="leg-l" x="35" y="104" width="13" height="30" rx="6.5" fill="#6B9FE8"/>
-          <rect id="leg-r" x="52" y="104" width="13" height="30" rx="6.5" fill="#6B9FE8"/>
-          <!-- Shoes -->
-          <ellipse cx="41" cy="134" rx="10" ry="5.5" fill="#3B2314"/>
-          <ellipse cx="58" cy="134" rx="10" ry="5.5" fill="#3B2314"/>
-          <ellipse cx="44" cy="132" rx="5" ry="3" fill="#5C3D2E"/>
-          <ellipse cx="61" cy="132" rx="5" ry="3" fill="#5C3D2E"/>
-          <!-- Body / Hoodie -->
-          <rect x="26" y="70" width="48" height="38" rx="16" fill="#7C6FFF"/>
-          <!-- Hoodie pocket -->
-          <rect x="38" y="92" width="24" height="12" rx="6" fill="rgba(0,0,0,0.15)"/>
-          <!-- Arms relaxed -->
-          <rect id="arm-l" x="10" y="72" width="20" height="11" rx="5.5" fill="#FDDBB4"/>
-          <rect id="arm-r" x="70" y="72" width="20" height="11" rx="5.5" fill="#FDDBB4"/>
-          <!-- Hands -->
-          <circle cx="14" cy="83" r="6" fill="#FDDBB4"/>
-          <circle cx="86" cy="83" r="6" fill="#FDDBB4"/>
-          <!-- Neck -->
-          <rect x="43" y="60" width="14" height="14" rx="5" fill="#FDDBB4"/>
-          <!-- Head — big round cute -->
-          <circle cx="50" cy="46" r="32" fill="#FDDBB4"/>
-          <!-- Hair — fluffy top knot style -->
-          <ellipse cx="50" cy="18" rx="28" ry="17" fill="#2C1A0E"/>
-          <ellipse cx="50" cy="22" rx="22" ry="12" fill="#3B2314"/>
-          <!-- Ear left -->
-          <circle cx="20" cy="46" r="8" fill="#F5C9A0"/>
-          <circle cx="20" cy="46" r="5" fill="#F0B090"/>
-          <!-- Ear right -->
-          <circle cx="80" cy="46" r="8" fill="#F5C9A0"/>
-          <circle cx="80" cy="46" r="5" fill="#F0B090"/>
-          <!-- Big cute eyes -->
-          <circle id="eye-l" cx="38" cy="44" r="8" fill="white"/>
-          <circle id="eye-r" cx="62" cy="44" r="8" fill="white"/>
-          <circle cx="38" cy="44" r="5.5" fill="#2C1A0E"/>
-          <circle cx="62" cy="44" r="5.5" fill="#2C1A0E"/>
+    <div style="display:flex;align-items:center;gap:14px">
+      <!-- Penguin avatar -->
+      <div id="step-avatar" style="width:72px;height:80px;flex-shrink:0;transition:all .4s">
+        <svg id="avatar-svg" viewBox="0 0 100 110" width="72" height="80" xmlns="http://www.w3.org/2000/svg">
+          <!-- Feet -->
+          <ellipse cx="36" cy="103" rx="14" ry="7" fill="#f59e0b"/>
+          <ellipse cx="64" cy="103" rx="14" ry="7" fill="#f59e0b"/>
+          <!-- Body -->
+          <path d="M20 60 Q18 90 36 100 Q50 106 64 100 Q82 90 80 60 Q78 38 50 36 Q22 38 20 60Z" fill="#2d2d3d"/>
+          <!-- White belly -->
+          <ellipse cx="50" cy="74" rx="18" ry="24" fill="white"/>
+          <!-- Left wing -->
+          <path id="arm-l" d="M22 58 Q8 65 10 82 Q14 90 22 88 Q26 76 24 62Z" fill="#2d2d3d"/>
+          <!-- Right wing -->
+          <path id="arm-r" d="M78 58 Q92 65 90 82 Q86 90 78 88 Q74 76 76 62Z" fill="#2d2d3d"/>
+          <!-- Head -->
+          <circle cx="50" cy="34" r="28" fill="#2d2d3d"/>
+          <!-- White face patch -->
+          <ellipse cx="50" cy="38" rx="19" ry="17" fill="white"/>
+          <!-- Eyes — big and round like image -->
+          <circle cx="41" cy="33" r="8" fill="white"/>
+          <circle cx="59" cy="33" r="8" fill="white"/>
+          <!-- Pupils -->
+          <circle id="pupil-l" cx="42" cy="34" r="5" fill="#111"/>
+          <circle id="pupil-r" cx="60" cy="34" r="5" fill="#111"/>
           <!-- Eye sparkles -->
-          <circle cx="40" cy="41" r="2" fill="white"/>
-          <circle cx="64" cy="41" r="2" fill="white"/>
-          <circle cx="35" cy="46" r="1" fill="white"/>
-          <circle cx="59" cy="46" r="1" fill="white"/>
-          <!-- Eyebrows -->
-          <path id="brow-l" d="M30 33 Q38 29 46 33" stroke="#3B2314" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-          <path id="brow-r" d="M54 33 Q62 29 70 33" stroke="#3B2314" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-          <!-- Cute nose -->
-          <ellipse cx="50" cy="52" rx="3" ry="2" fill="rgba(180,100,80,0.3)"/>
-          <!-- Mouth -->
-          <path id="mouth" d="M41 60 Q50 67 59 60" stroke="#D4785A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <!-- Rosy cheeks -->
-          <circle id="cheek-l" cx="26" cy="56" r="8" fill="rgba(255,140,120,0.35)"/>
-          <circle id="cheek-r" cx="74" cy="56" r="8" fill="rgba(255,140,120,0.35)"/>
+          <circle cx="44" cy="31" r="2" fill="white"/>
+          <circle cx="62" cy="31" r="2" fill="white"/>
+          <!-- Beak — diamond shape, no mouth line -->
+          <polygon cx="50" cy="44" points="50,40 55,44 50,48 45,44" fill="#f59e0b"/>
+
+          <!-- Cheeks (shown when happy) -->
+          <circle id="cheek-l" cx="28" cy="42" r="8" fill="rgba(255,100,80,0)"/>
+          <circle id="cheek-r" cx="72" cy="42" r="8" fill="rgba(255,100,80,0)"/>
+          <!-- Tear drop for upset -->
+          <ellipse id="tear" cx="35" cy="46" rx="2.5" ry="3.5" fill="rgba(100,180,255,0)"/>
         </svg>
       </div>
       <div style="flex:1">
@@ -316,17 +295,16 @@
           <div style="font-family:'DM Serif Display',serif;font-size:32px;line-height:1" id="step-count-val">0</div>
           <div style="font-size:12px;color:var(--muted)">steps</div>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="step-mood-label">Tap + Log to add steps</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="step-mood-label">Tap + to log steps</div>
         <div style="background:var(--surface2);border-radius:99px;height:6px;overflow:hidden">
           <div id="step-progress-bar" style="height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width .8s ease"></div>
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:4px">Goal: 10,000 steps</div>
       </div>
-
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+    <div id="health-setup-row" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);width:100%">
       <div style="font-size:11px;color:var(--muted)">🍎 Apple Health sync</div>
-      <button onclick="openHealthSetup()" style="padding:5px 12px;background:rgba(111,255,158,.08);border:1px solid rgba(111,255,158,.2);border-radius:99px;color:var(--green);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Set up →</button>
+      <button id="health-setup-btn" onclick="openHealthSetup()" style="padding:5px 12px;background:rgba(111,255,158,.08);border:1px solid rgba(111,255,158,.2);border-radius:99px;color:var(--green);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Set up →</button>
     </div>
   </div>
 
@@ -2219,8 +2197,11 @@ async function tryLoadAppleHealthSteps(){
 }
 
 function checkStepsFromURL(){
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlSteps = urlParams.get('steps');
+  const p = new URLSearchParams(window.location.search);
+  let changed = false;
+
+  // Steps from Apple Health shortcut
+  const urlSteps = p.get('steps');
   if(urlSteps !== null){
     const val = parseInt(urlSteps);
     if(!isNaN(val) && val >= 0){
@@ -2229,10 +2210,40 @@ function checkStepsFromURL(){
       localStorage.setItem('hub_health_steps_today', val);
       localStorage.setItem('hub_health_steps_date', today);
       updateStepDisplay();
-      window.history.replaceState({}, '', window.location.pathname);
       showToast('✅ Steps synced from Apple Health!');
+      changed = true;
     }
   }
+
+  // Outlook ICS URL
+  const outlookUrl = p.get('outlookurl');
+  if(outlookUrl){
+    localStorage.setItem('hub_outlook_url', decodeURIComponent(outlookUrl));
+    showToast('📅 Outlook calendar saved!');
+    changed = true;
+  }
+
+  // Home address
+  const homeAddr = p.get('home');
+  if(homeAddr){
+    localStorage.setItem('hub_addr_home', decodeURIComponent(homeAddr));
+    const el = document.getElementById('addr-home-display');
+    if(el) el.textContent = decodeURIComponent(homeAddr);
+    showToast('🏠 Home address saved!');
+    changed = true;
+  }
+
+  // Work address
+  const workAddr = p.get('work');
+  if(workAddr){
+    localStorage.setItem('hub_addr_work', decodeURIComponent(workAddr));
+    const el = document.getElementById('addr-work-display');
+    if(el) el.textContent = decodeURIComponent(workAddr);
+    showToast('🏢 Work address saved!');
+    changed = true;
+  }
+
+  if(changed) window.history.replaceState({}, '', window.location.pathname);
 }
 
 // Fire whenever Safari navigates to the URL (even if page was already open)
@@ -2263,39 +2274,39 @@ function renderAvatar(steps){
 
   const moods = {
     ecstatic:{ msg:'You crushed it today! 🔥', color:'#6fff9e',
-      brows:['M30 29 Q38 24 46 29','M54 29 Q62 24 70 29'],
-      mouth:'M39 62 Q50 74 61 62', cheeks:.55 },
+      brows:['M33 21 Q41 15 49 20','M51 20 Q59 15 67 21'],
+      cheeks:.55, tear:0, pupils:4, armL:'M22 54 Q4 50 2 67 Q6 78 16 80 Q22 70 22 56Z', armR:'M78 54 Q96 50 98 67 Q94 78 84 80 Q78 70 78 56Z' },
     happy:   { msg:'Great job, keep it up! 💪', color:'#c8a96e',
-      brows:['M30 31 Q38 27 46 31','M54 31 Q62 27 70 31'],
-      mouth:'M41 61 Q50 69 59 61', cheeks:.45 },
+      brows:['M33 22 Q41 17 49 21','M51 21 Q59 17 67 22'],
+      cheeks:.4, tear:0, pupils:5, armL:null, armR:null },
     neutral: { msg:'Not bad, a little more! 🚶', color:'#7ccfff',
-      brows:['M30 33 Q38 29 46 33','M54 33 Q62 29 70 33'],
-      mouth:'M41 61 Q50 65 59 61', cheeks:.25 },
+      brows:['M33 23 Q41 20 49 23','M51 23 Q59 20 67 23'],
+      cheeks:.1, tear:0, pupils:5, armL:null, armR:null },
     sad:     { msg:'Come on, get moving! 😕', color:'#ffb347',
-      brows:['M30 35 Q38 31 46 35','M54 35 Q62 31 70 35'],
-      mouth:'M41 65 Q50 59 59 65', cheeks:.15 },
+      brows:['M33 21 Q41 25 49 23','M51 23 Q59 25 67 21'],
+      cheeks:.05, tear:0, pupils:4.5, armL:null, armR:null },
     upset:   { msg:'Barely any steps today 😩', color:'#ff6f6f',
-      brows:['M30 37 Q38 31 46 37','M54 37 Q62 31 70 37'],
-      mouth:'M41 67 Q50 60 59 67', cheeks:.08 },
+      brows:['M33 20 Q41 26 49 24','M51 24 Q59 26 67 20'],
+      cheeks:.0, tear:.9, pupils:4, armL:null, armR:null },
   };
   const m = moods[mood];
 
-  // Update mouth
-  const mouth = document.getElementById('mouth');
-  if(mouth) mouth.setAttribute('d', m.mouth);
-  // Animate arms on ecstatic
+  const pl = document.getElementById('pupil-l'), pr = document.getElementById('pupil-r');
+  if(pl) pl.setAttribute('r', m.pupils);
+  if(pr) pr.setAttribute('r', m.pupils);
+
+  const cl = document.getElementById('cheek-l'), cr = document.getElementById('cheek-r');
+  if(cl) cl.setAttribute('fill','rgba(255,100,80,'+m.cheeks+')');
+  if(cr) cr.setAttribute('fill','rgba(255,100,80,'+m.cheeks+')');
+  const tear = document.getElementById('tear');
+  if(tear) tear.setAttribute('fill','rgba(100,180,255,'+m.tear+')');
   const armL = document.getElementById('arm-l');
   const armR = document.getElementById('arm-r');
-  if(armL && m.armL){ armL.setAttribute('d', m.armL); armL.setAttribute('width',''); }
-  if(armR && m.armR){ armR.setAttribute('d', m.armR); armR.setAttribute('width',''); }
+  if(armL && m.armL) armL.setAttribute('d', m.armL);
+  else if(armL) armL.setAttribute('d','M22 58 Q8 65 10 82 Q14 90 22 88 Q26 76 24 62Z');
+  if(armR && m.armR) armR.setAttribute('d', m.armR);
+  else if(armR) armR.setAttribute('d','M78 58 Q92 65 90 82 Q86 90 78 88 Q74 76 76 62Z');
   // Update brows
-  const bl = document.getElementById('brow-l'), br = document.getElementById('brow-r');
-  if(bl) bl.setAttribute('d', m.brows[0]);
-  if(br) br.setAttribute('d', m.brows[1]);
-  // Update cheeks opacity
-  const cl = document.getElementById('cheek-l'), cr = document.getElementById('cheek-r');
-  if(cl) cl.setAttribute('fill', 'rgba(255,150,120,'+m.cheeks+')');
-  if(cr) cr.setAttribute('fill', 'rgba(255,150,120,'+m.cheeks+')');
   // Bounce animation for ecstatic
   if(avatarEl){
     avatarEl.style.animation = mood==='ecstatic' ? 'bounce 0.5s infinite alternate' : 'none';
@@ -2319,8 +2330,8 @@ function updateStepDisplay(){
   if(bar) bar.style.width = pct+'%';
   renderAvatar(steps);
   // Hide setup button once steps are being tracked
-  const setupBtn = document.getElementById('health-setup-btn');
-  if(setupBtn) setupBtn.style.display = steps > 0 ? 'none' : '';
+  const setupRow = document.getElementById('health-setup-row');
+  if(setupRow) setupRow.style.display = steps > 0 ? 'none' : 'flex';
 }
 
 function logSteps(){
