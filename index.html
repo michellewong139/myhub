@@ -697,14 +697,20 @@
     <div class="modal-handle"></div>
     <div class="modal-title">Add Event</div>
     <input class="modal-input" type="text" id="ev-title" placeholder="Event title…"/>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase">Start date</div>
+    <input class="modal-input" type="date" id="ev-date" style="color-scheme:dark" oninput="updateRangeLabel()"/>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase">End date <span style="font-weight:400;text-transform:none">(optional)</span></div>
+    <input class="modal-input" type="date" id="ev-end-date" style="color-scheme:dark" oninput="updateRangeLabel()"/>
     <div id="ev-date-range-label" style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px;padding:0 2px"></div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">START</div><input class="modal-input" type="date" id="ev-date" style="color-scheme:dark;margin-bottom:0" oninput="updateRangeLabel()"/></div>
-      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">END</div><input class="modal-input" type="date" id="ev-end-date" style="color-scheme:dark;margin-bottom:0" oninput="updateRangeLabel()"/></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">START TIME</div><input class="modal-input" type="time" id="ev-time" style="color-scheme:dark;margin-bottom:0"/></div>
-      <div style="flex:1"><div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em">END TIME</div><input class="modal-input" type="time" id="ev-end-time" style="color-scheme:dark;margin-bottom:0"/></div>
+    <div style="display:flex;gap:10px;margin-bottom:4px">
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase">Start time</div>
+        <input class="modal-input" type="time" id="ev-time" style="color-scheme:dark;margin-bottom:0"/>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase">End time</div>
+        <input class="modal-input" type="time" id="ev-end-time" style="color-scheme:dark;margin-bottom:0"/>
+      </div>
     </div>
     <div style="margin-bottom:18px;margin-top:4px">
       <div style="font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase;font-weight:600">Colour</div>
