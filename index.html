@@ -332,7 +332,7 @@
     <div class="widget wide" style="background:linear-gradient(135deg,#0d1a2e,#0a1520)" onclick="showScreen('travel')">
       <div class="glow-dot" style="background:#7cefff"></div><div class="widget-icon">🚇</div>
       <div class="widget-name">Travel</div>
-      <div class="widget-value" id="hw-travel-val">W2 → Canary Wharf</div>
+      <div class="widget-value" id="hw-travel-val">Home → Work</div>
       <div class="widget-sub" id="hw-travel-sub">Tap for routes & TfL status</div>
     </div>
   </div>
@@ -685,7 +685,7 @@
     <div class="modal-title" id="edit-addr-title">Edit Address</div>
     <div class="modal-sub">Enter a full address or postcode.</div>
     <input type="hidden" id="edit-addr-type"/>
-    <input class="modal-input" type="text" id="edit-addr-input" placeholder="e.g. W2 1DN or 8 Canada Square"/>
+    <input class="modal-input" type="text" id="edit-addr-input" placeholder="e.g. your postcode or full address"/>
     <button class="modal-btn" onclick="saveAddress()">Save</button>
     <button class="modal-cancel" onclick="closeModalById('edit-address-modal')">Cancel</button>
   </div>
@@ -1892,8 +1892,8 @@ function clearAll(){
 // TRAVEL
 // ═══════════════════════════════════════════════════════
 let travelAddresses = JSON.parse(localStorage.getItem('hub_travel') || 'null') || {
-  home: 'W2 1DN, London',
-  work: '8 Canada Square, London E14 5HQ'
+  home: localStorage.getItem('hub_home_addr') || '',
+  work: localStorage.getItem('hub_work_addr') || ''
 };
 
 function saveTravelAddresses(){
@@ -1920,8 +1920,10 @@ function saveAddress(){
 
 
 function initTravel(){
-  document.getElementById('addr-home-display').textContent = travelAddresses.home;
-  document.getElementById('addr-work-display').textContent = travelAddresses.work;
+  document.getElementById('addr-home-display').textContent = travelAddresses.home || 'Tap to set home address';
+  document.getElementById('addr-work-display').textContent = travelAddresses.work || 'Tap to set work address';
+  const tv = document.getElementById('hw-travel-val');
+  if(tv) tv.textContent = (travelAddresses.home || 'Home') + ' → ' + (travelAddresses.work || 'Work');
 }
 
 function openRoute(direction){ openInGoogleMaps(direction); }
